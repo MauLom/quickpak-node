@@ -1,0 +1,25 @@
+{
+  "_id": {
+    "$oid": "63977cbce4890c5b876aefa6215125"
+  },
+  "client": "Some User Test",
+  "createdAt": "04/12/22",
+  "parcel": "DHL",
+  "labelId": "No.Guia",
+  "pieces": {"weight":0, "dimensions":"90x90x90"},
+  "serviceType": "Aereo/Terrestre",
+  "zoneSended": 0,
+  "freightCost":0,
+  "charges":{
+    "fuel_charge":{"included": true, "percent":"10%", "amount":100},
+    "remote_area":{"included":false, "amount":0 },
+    "over_sized":{"included": true, "amount": 100 },
+"over_weight":{"included": true, "amount": 100 },
+    "insurance":{"included": false, "amount":0}
+  },
+  "subtotal": 251,
+  "taxes":{"IVA":168},
+  "total": 345,
+  "label":"Some Binary",
+  "directions":{"origin":{"zip":"64000"}, "destiny":{"zip":"66340"}}  
+} 

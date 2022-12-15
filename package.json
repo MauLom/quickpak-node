@@ -1,0 +1,24 @@
+{
+  "name": "back-node",
+  "description": "Backend application for quickpack services",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "author": "Google LLC",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "axios-oauth-client": "^1.5.0",
+    "axios-token-interceptor": "^0.2.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "firebase-admin": "^11.0.0",
+    "mongodb": "^4.12.1"
+  }
+}
