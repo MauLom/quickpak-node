@@ -56835,7 +56835,6 @@ const objRef = {
     ]
 }
 const getSigByZip = (zip) => {
-    console.log("zip", zip)
     for (let i = 0; i < objRef.sigByZip.length; i++) {
         let indexOfZip = objRef.sigByZip[i].zipCodes.indexOf(zip)
         if (indexOfZip > -1) {

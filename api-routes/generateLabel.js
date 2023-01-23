@@ -205,10 +205,9 @@ router.post('/estafeta', async (req, res) => {
             padTo2Digits(dateValidThru.getMonth() + 1),
             padTo2Digits(dateValidThru.getDate()),
         ].join('');
-        console.log("formatted:", dateValidThruFormatted)
         const dataObj = {
             "identification": {
-                "suscriberId": "01",
+                "suscriberId": "WS",
                 "customerNumber": envVariables.noClient
             },
             "systemInformation": {
@@ -403,7 +402,6 @@ router.post('/estafeta', async (req, res) => {
             }
         }
         const response = await controllerEstafetaServices.generateLabel(dataObj)
-        console.log("alo?", envVariables.enviroment)
 
         if (null !== response?.data) {
 

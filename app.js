@@ -6,6 +6,7 @@ const getRatesRoute = require('./api-routes/getRates')
 const generateLabel = require('./api-routes/generateLabel')
 const getZoneDHL = require('./api-routes/getZoneDHL')
 const labelsData = require('./api-routes/labelsData')
+const usersData = require('./api-routes/usersData')
 app.use(express.json())
 
 app.use(cors())
@@ -24,4 +25,5 @@ app.use('/getRates', getRatesRoute)
 app.use('/generateLabel', generateLabel)
 app.use('/getZoneDHL', getZoneDHL)
 app.use('/labelsData', labelsData)
+app.use('/usersData', usersData)
 module.exports = app;

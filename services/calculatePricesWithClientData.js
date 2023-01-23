@@ -87,7 +87,6 @@ module.exports = {
     },
     getPricesEstafetaBasedOnSheet: (rateData, sheet, weight, zone, FFAerialTax, FFGroundTax, costoReexpedicion, calculoSeguro) => {
         var arrWithNewPrices = []
-        console.log("rateData", rateData)
         rateData.forEach(eachService => {
             let newObj = {}
             let arrParseadaBD = sheet.data[eachService.DescripcionServicio]

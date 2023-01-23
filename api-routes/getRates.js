@@ -72,12 +72,16 @@ router.post('/', async (req, res) => {
         const dataResponseDHL = await controllerDHLServices.getRateAndStructure(dataToDHL)
         const weightForCalcs = controllerWeight.getWeightForCalcs(packages)
         const clientDataSheet = await controllerUserData.getDataSheetById(userId)
+        if(clientDataSheet?.error){
+        res.status(500).json({ status: "Error", messages: clientDataSheet.message})
+        }
         //const ffTaxes = await controllerFirebaseBD.getFFTaxes()
         //const validServicesDHL = await controllerUserData.getValidServices(userId)
         // const validServicesDHL = ["I", "O", "1", "G", "N"]
         const validServicesDHL = ["G", "N"]
         const zonedhl= getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
         const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl, 12.96, 16.3, validServicesDHL)
+       
         res.status(200).json({ status: "OK", messages: "ok", zone: zonedhl, data: pricesBasedOnClientData })
     }
 
@@ -148,7 +152,10 @@ router.post('/estafeta', async (req, res) => {
                 ]
             }
         }
+        // console.log("dataRequest: ", dataRequest)
         const dataResponseESTAFETARaw = await controllerEstafetaServices.getRates(dataRequest)
+        console.log("Data response", dataResponseESTAFETARaw)
+
         let dataResponseESTAFETA = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta
         if (dataResponseESTAFETA.Error != "000") {
             res.status(200).json({ status: "error", message: dataResponseESTAFETA.MensajeError, errorCode: dataResponseESTAFETA.Error, })
