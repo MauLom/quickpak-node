@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
         // const validServicesDHL = ["I", "O", "1", "G", "N"]
         const validServicesDHL = ["G", "N"]
         const zonedhl= getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
-        const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl, 12.96, 16.3, validServicesDHL)
+        const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl, 10.80, 16.5, validServicesDHL)
        
         res.status(200).json({ status: "OK", messages: "ok", zone: zonedhl, data: pricesBasedOnClientData })
     }
