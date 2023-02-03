@@ -16,8 +16,17 @@
 const MongoClient = require("mongodb").MongoClient;
 const uri = "mongodb+srv://root:Hyklv5gh@cluster0.dl9kn2d.mongodb.net/test";
 
-
 module.exports = {
+    findClients: async (data) =>{
+        const client = new MongoClient(uri);
+            const database = client.db("QuickpakMain");
+            const userfind = database.collection("clients");
+            var referencia = data.referencia;
+            var idServices = data.idServices;
+            var result=  await userfind.findOne({referencia:referencia, idServices:idServices}) 
+            console.log('controler '+result)
+            return result;
+    },
     saveGeneratedLabelDataOnBD: async (data) => {
         const client = new MongoClient(uri);
         try {
