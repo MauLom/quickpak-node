@@ -36,4 +36,23 @@ router.post('/', async (req, res) => {
 
     }
 })
+router.post('/register', async (req, res)=>{
+    var idServices=""
+    var referencia="" 
+    var matriz={}
+    if (req.body.idServices === "" || req.body.idServices === undefined) {
+        res.status(500).json({ status: "error", message: "No se pudo leer la propiedad 'referencia' del body", data: referencia })
+    }else if (req.body.referencia === "" || req.body.referencia === undefined) {
+        res.status(500).json({ status: "error", message: "No se pudo leer la propiedad 'idServices' en el body", data: idServices })
+    } else if (req.body.matriz === null || req.body.matriz === undefined) {
+        res.status(500).json({ status: "error", message: "No se pudo leer la propiedad 'idServices' en el body", data: idServices })
+    } else {
+        idServices=req.body.idServices
+        referencia=req.body.referencia
+        matriz=req.body.matriz
+        
+        const UserInserted= await controllerMongoData.saveGeneratedUsersonBD({idServices:idServices, referencia:referencia, matriz:matriz})
+        console.log('resultadosde insercion de cliente',UserInserted )
+    }
+})
 module.exports = router

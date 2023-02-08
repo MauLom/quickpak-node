@@ -41,5 +41,20 @@ module.exports = {
         } finally {
             await client.close();
         }
+    },
+    saveGeneratedUsersonBD: async (data) => {
+        const client = new MongoClient(uri);
+        try {
+            const database = client.db("QuickpakMain");
+            const generatedLabels = database.collection("clients");
+            // create a document to insert
+            const doc = data
+            const result = await generatedLabels.insertOne(doc);
+            console.log(`A document was inserted with the _id: ${result.insertedId}`);
+        } catch (error) {
+            console.log("Error:", error)
+        } finally {
+            await client.close();
+        }
     }
 }
