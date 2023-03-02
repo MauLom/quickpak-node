@@ -17,15 +17,15 @@ const MongoClient = require("mongodb").MongoClient;
 const uri = "mongodb+srv://root:Hyklv5gh@cluster0.dl9kn2d.mongodb.net/test";
 
 module.exports = {
-    findClients: async (data) =>{
+    findClients: async (data) => {
         const client = new MongoClient(uri);
-            const database = client.db("QuickpakMain");
-            const userfind = database.collection("clients");
-            var referencia = data.referencia;
-            var idServices = data.idServices;
-            var result=  await userfind.findOne({referencia:referencia, idServices:idServices}) 
-            console.log('controler '+result)
-            return result;
+        const database = client.db("QuickpakMain");
+        const userfind = database.collection("clients");
+        var referencia = data.referencia;
+        var idServices = data.idServices;
+        var result = await userfind.findOne({ referencia: referencia, idServices: idServices })
+        console.log('controler ' + result)
+        return result;
     },
     saveGeneratedLabelDataOnBD: async (data) => {
         const client = new MongoClient(uri);
@@ -55,6 +55,26 @@ module.exports = {
             console.log("Error:", error)
         } finally {
             await client.close();
+        }
+    },
+    saveGeneralValues: async (data) => {
+        const mongobd = new MongoClient(uri);
+        try {
+            const database = mongobd.db("QuickpakMain");
+            const additionalValues = database.collection("additionalValues")
+            const doc = data
+            const result = await additionalValues.findOneAndReplace({ "key": "finded" }, {
+                "FFTaxes": {
+                    "aerial": 20,
+                    "land": 50
+                }
+            })
+            console.log("The replace has been done", result)
+        }
+        catch (error) {
+            console.log("Error:", error)
+        } finally {
+            await client.close()
         }
     }
 }
