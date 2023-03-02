@@ -27,6 +27,13 @@ module.exports = {
         console.log('controler ' + result)
         return result;
     },
+    findGeneralValues: async () => {
+        const client = new MongoClient(uri);
+        const database = client.db("QuickpakMain");
+        const generalValuesCollection = database.collection("additionalValues")
+        var result = await generalValuesCollection.findOne({"key":"finded"})
+        return result;
+    },
     saveGeneratedLabelDataOnBD: async (data) => {
         const client = new MongoClient(uri);
         try {
@@ -62,11 +69,11 @@ module.exports = {
         try {
             const database = mongobd.db("QuickpakMain");
             const additionalValues = database.collection("additionalValues")
-            const doc = data
             const result = await additionalValues.findOneAndReplace({ "key": "finded" }, {
+                "key":"finded",
                 "FFTaxes": {
-                    "aerial": 20,
-                    "land": 50
+                    "aerial": data.aerial,
+                    "land": data.land
                 }
             })
             console.log("The replace has been done", result)
@@ -74,7 +81,7 @@ module.exports = {
         catch (error) {
             console.log("Error:", error)
         } finally {
-            await client.close()
+            await mongobd.close()
         }
     }
 }

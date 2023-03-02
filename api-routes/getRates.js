@@ -154,7 +154,6 @@ router.post('/estafeta', async (req, res) => {
         }
         // console.log("dataRequest: ", dataRequest)
         const dataResponseESTAFETARaw = await controllerEstafetaServices.getRates(dataRequest)
-        console.log("Data response", dataResponseESTAFETARaw)
 
         let dataResponseESTAFETA = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta
         if (dataResponseESTAFETA.Error != "000") {
