@@ -24,7 +24,6 @@ module.exports = {
         var referencia = data.referencia;
         var idServices = data.idServices;
         var result = await userfind.findOne({ referencia: referencia, idServices: idServices })
-        console.log('controler ' + result)
         return result;
     },
     findGeneralValues: async () => {
@@ -42,7 +41,6 @@ module.exports = {
             // create a document to insert
             const doc = data
             const result = await generatedLabels.insertOne(doc);
-            console.log(`A document was inserted with the _id: ${result.insertedId}`);
         } catch (error) {
             console.log("Error:", error)
         } finally {
@@ -57,7 +55,6 @@ module.exports = {
             // create a document to insert
             const doc = data
             const result = await generatedLabels.insertOne(doc);
-            console.log(`A document was inserted with the _id: ${result.insertedId}`);
         } catch (error) {
             console.log("Error:", error)
         } finally {
@@ -76,7 +73,6 @@ module.exports = {
                     "land": data.land
                 }
             })
-            console.log("The replace has been done", result)
         }
         catch (error) {
             console.log("Error:", error)

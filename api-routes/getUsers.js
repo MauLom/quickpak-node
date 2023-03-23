@@ -16,24 +16,12 @@ router.post('/', async (req, res) => {
         idServices = req.body.idServices
         var descifrado=CryptoJS.AES.decrypt(idServices,'test');
         var textofinal=descifrado.toString(CryptoJS.enc.Utf8);
-        
         const resuloffind = await controllerMongoData.findClients({ referencia: referencia, idServices: textofinal }) 
-        
-        
-        console.log("resultado en getUsers", resuloffind)
         if (resuloffind === null) {
-            
             res.status(500).json({ status: "error", message: "No se pudo encontrar", data:false })
-
         }else{
             res.status(200).send({ message: 'se recibieron los datos', data: true })
-            
         }
-        console.log('result',resuloffind)
-        
-        
-
-
     }
 })
 router.post('/register', async (req, res)=>{

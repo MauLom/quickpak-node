@@ -8,7 +8,6 @@ async function run() {
     try {
         const database = client.db("QuickpakMain");
         const generatedLabels = database.collection("generatedLabels");
-        console.log("generatedLabels.find({}).limit(10).toArray()", await generatedLabels.find({}).limit(10).toArray())
         return generatedLabels
     } finally {
         await client.close();

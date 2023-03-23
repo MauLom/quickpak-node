@@ -10,7 +10,8 @@ const getzoneDHL = require('../services/zoneRequest')
 
 
 const controllerFirebaseBD = require('../models/controllerFirebaseBD');
-const controllerZonesEstafeta = require('../models/controllerSigsAndZonesEstafeta')
+const controllerZonesEstafeta = require('../models/controllerSigsAndZonesEstafeta');
+const controllerMongoBD = require('../models/controllerMongoBD');
 router.post('/', async (req, res) => {
     var timestamp = ""
     var shipperCity = ""
@@ -23,8 +24,8 @@ router.post('/', async (req, res) => {
     var insurance = ""
     var userId = ""
     ///////
-    var cpOrigin=""
-    var cpDestino=""
+    var cpOrigin = ""
+    var cpDestino = ""
 
     if (req.body.timestamp === "" || req.body.timestamp === undefined) {
         res.status(500).json({ status: "error", messages: "No se pudo leer la propiedad 'timestamp' del body" })
@@ -48,7 +49,7 @@ router.post('/', async (req, res) => {
         res.status(500).json({ status: "error", messages: "No se pudo leer la propiedad 'userId' del body" })
 
     }
-     else {
+    else {
         timestamp = req.body.timestamp
         shipperCity = req.body.shipperCity
         shipperCountryCode = req.body.shipperCountryCode
@@ -72,16 +73,16 @@ router.post('/', async (req, res) => {
         const dataResponseDHL = await controllerDHLServices.getRateAndStructure(dataToDHL)
         const weightForCalcs = controllerWeight.getWeightForCalcs(packages)
         const clientDataSheet = await controllerUserData.getDataSheetById(userId)
-        if(clientDataSheet?.error){
-        res.status(500).json({ status: "Error", messages: clientDataSheet.message})
+        if (clientDataSheet?.error) {
+            res.status(500).json({ status: "Error", messages: clientDataSheet.message })
         }
-        //const ffTaxes = await controllerFirebaseBD.getFFTaxes()
+        const ffTaxes = await controllerMongoBD.findGeneralValues()
         //const validServicesDHL = await controllerUserData.getValidServices(userId)
         // const validServicesDHL = ["I", "O", "1", "G", "N"]
         const validServicesDHL = ["G", "N"]
-        const zonedhl= getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
-        const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl, 10.80, 16.5, validServicesDHL)
-       
+        const zonedhl = getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
+        const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl, Number.parseFloat(ffTaxes.FFTaxes.aerial), Number.parseFloat(ffTaxes.FFTaxes.land), validServicesDHL)
+
         res.status(200).json({ status: "OK", messages: "ok", zone: zonedhl, data: pricesBasedOnClientData })
     }
 
@@ -167,14 +168,14 @@ router.post('/estafeta', async (req, res) => {
             } else {
                 const clientDataSheet = await controllerUserData.getDataEstafetaSheetById(userId)
                 const weightForCalcs = await controllerWeight.getWeightForCalcsFromEstafetaPackage({ 'alto': alto, 'ancho': ancho, 'largo': largo, 'peso': peso })
-                // const ffTaxes = await controllerFirebaseBD.getFFTaxes()
+                const ffTaxes = await controllerMongoBD.findGeneralValues()
                 const costoReexpedicion = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.CostoReexpedicion
                 const DiasEntrega = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.DiasEntrega
                 const txtManejoEspecial = "Envíos identificados como frágil, empaque irregular, envíos no transportables por bandas pueden generar un costo extra de  $63.67"
                 const ocurreForzoso = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.ModalidadEntrega.OcurreForzoso
                 dataResponseESTAFETA = await controllerEstafetaServices.getValidServices(dataResponseESTAFETA.TipoServicio.TipoServicio, zone)
                 const calculoSeguro = parseFloat(Number(seguroMontoDeclarado) * 0.0125).toFixed(2)
-                const dataBasedOnUserSheet = await controllerPrices.getPricesEstafetaBasedOnSheet(dataResponseESTAFETA, clientDataSheet, weightForCalcs, zone, 12.96, 16.3, costoReexpedicion != "No" ? costoReexpedicion : "0", calculoSeguro)
+                const dataBasedOnUserSheet = await controllerPrices.getPricesEstafetaBasedOnSheet(dataResponseESTAFETA, clientDataSheet, weightForCalcs, zone, Number.parseFloat(ffTaxes.FFTaxes.aerial), Number.parseFloat(ffTaxes.FFTaxes.land), costoReexpedicion != "No" ? costoReexpedicion : "0", calculoSeguro)
                 res.status(200).json({ status: "ok", messages: "OK", data: dataBasedOnUserSheet, diasEntrega: DiasEntrega, manejoEspecial: txtManejoEspecial, ocurreForzoso: ocurreForzoso, zone: zone, })
             }
         }
