@@ -9,6 +9,7 @@ const labelsData = require('./api-routes/labelsData')
 const usersData = require('./api-routes/usersData')
 const getUsers = require ('./api-routes/getUsers')
 const generalValues = require('./api-routes/changeGeneralValues')
+const trackingLabels = require('./api-routes/trackingLabel')
 app.use(express.json())
 
 app.use(cors())
@@ -35,4 +36,5 @@ app.use('/labelsData', labelsData)
 app.use('/usersData', usersData)
 app.use('/getUsers', getUsers)
 app.use('/generalValues', generalValues)
+app.use('/trackingLabel', trackingLabels)
 module.exports = app;

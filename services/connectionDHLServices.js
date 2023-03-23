@@ -1,10 +1,10 @@
 const axios = require('axios');
-const config =  require('../config')
+const config = require('../config')
 const mainUrl = "https://wsbexpress.dhl.com/rest/"
 const rateRequest = "RateRequest"
 const shipmentRequest = "ShipmentRequest"
-
-const envVariables =  config.getVariables()
+const trackintRequestURL = "TrackingRequest"
+const envVariables = config.getVariables()
 
 module.exports = {
 
@@ -70,16 +70,8 @@ module.exports = {
                         formattedServicesArr = dataResponse.RateResponse.Provider[0].Service
                     }
                     formattedServicesArr.forEach(eachType => {
-                        // console.log("eachType type", eachType['@type'])
-                        // if (eachType.hasOwnProperty('TotalNet')) {
-                        //     delete eachType['TotalNet']
-                        // }
-                        if (eachType.hasOwnProperty('Charges') && eachType['Charges'].hasOwnProperty('Charge') && undefined != eachType['Charges']['Charge'].length ) {
-                            // console.log("eachType['Charges']['Charge']", typeof eachType['Charges']['Charge'])
-                            // console.log("lenght", eachType['Charges']['Charge'].length)
-
+                        if (eachType.hasOwnProperty('Charges') && eachType['Charges'].hasOwnProperty('Charge') && undefined != eachType['Charges']['Charge'].length) {
                             eachType['Charges']['Charge'].forEach(cadaCargo => {
-                                // console.log("cargos:", cadaCargo['ChargeCode'])
                                 if (cadaCargo.hasOwnProperty('ChargeBreakdown')) {
                                     delete cadaCargo['ChargeBreakdown']
                                 }
@@ -100,7 +92,7 @@ module.exports = {
 
     generateLabel: async (dataToSend) => {
         const resolvedRequest = await axios
-            .post(mainUrl + envVariables.enviroment +shipmentRequest, dataToSend,
+            .post(mainUrl + envVariables.enviroment + shipmentRequest, dataToSend,
                 { auth: { username: envVariables.DHLAccessUser, password: envVariables.DHLAccessPass } })
             .then(res => {
                 return res
@@ -109,6 +101,18 @@ module.exports = {
                 console.error(error);
                 return error
             });
+        return resolvedRequest
+    },
+    trackingLabel: async (dataToSend) => {
+        const resolvedRequest = await axios
+            .post(`${mainUrl}${envVariables.enviroment}${trackintRequestURL}`, dataToSend, { auth: { username: envVariables.DHLAccessUser, password: envVariables.DHLAccessPass } })
+            .then(res => {
+                return res.data.trackShipmentRequestResponse.trackingResponse.TrackingResponse.AWBInfo.ArrayOfAWBInfoItem
+            })
+            .catch(error => {
+                console.error(error)
+                return error
+            })
         return resolvedRequest
     }
 }
