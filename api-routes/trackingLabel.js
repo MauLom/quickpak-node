@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     // - SHIPMENT_DETAILS_ONLY
     // - ADVANCE_SHIPMENT
     // - BBX_CHILDREN
-    const detailsLeveloption = "LAST_CHECKPOINT_ONLY"
+    const detailsLeveloption = "ALL_CHECKPOINTS"
     /// Possible Values:
     // - B = Both Piece and Shipment
     // - S = Shipment Details Only
