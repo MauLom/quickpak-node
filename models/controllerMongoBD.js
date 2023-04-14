@@ -83,5 +83,28 @@ module.exports = {
         } finally {
             await mongobd.close()
         }
+    },
+    findDirectionNotebook: async (data) => {
+        const client = new MongoClient(uri);
+        const database = client.db("QuickpakMain");
+        const directionsNotebooks = database.collection("directionsNotebooks");
+        var idServices = data.idServices;
+        var result = await directionsNotebooks.findOne({  idServices: idServices })
+        console.log('controler ' + result)
+        return result;
+    },
+    saveDirectionsNoteBook: async (data) =>{
+        const mongobd = new MongoClient(uri);
+        try{
+            const database = mongobd.db("QuickpakMain");
+            const directionsNotebooks = database.collection("directionsNotebooks");
+            const doc = data
+            const result = await directionsNotebooks.insertOne(doc);
+            console.log(`A document was inserted with the _id: ${result.insertedId}`);
+        } catch (error) {
+            console.log("Error:", error)
+        } finally {
+            await mongobd.close()
+        }
     }
 }
