@@ -91,10 +91,12 @@ module.exports = {
     },
     saveDirectionsNoteBook: async (data) =>{
         const mongobd = new MongoClient(uri);
+        console.log("Reach this point")
         try{
             const database = mongobd.db("QuickpakMain");
             const directionsNotebooks = database.collection("directionsNotebooks");
             const doc = data
+            console.log("The dodc: ", doc)
             const result = await directionsNotebooks.insertOne(doc);
             console.log(`A document was inserted with the _id: ${result.insertedId}`);
         } catch (error) {
