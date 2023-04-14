@@ -135,8 +135,6 @@ module.exports = {
     } else if (origin === 0) {
 
     } else {
-      console.log(cpOrigin2, cpDestino2)
-      console.log('posicion de origen', origin, 'posicion de destino', destiny)
       let zonaRespuesta = "0"
       zonaRespuesta = matrizDatos[destiny - 1][origin - 1]
       return zonaRespuesta

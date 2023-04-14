@@ -31,9 +31,6 @@ router.post('/', async (req, res) => {
         } else if (userId === "enc0UiLq0oNXm1GTFHB8") {
             customerReference = "SRS Express"
         }
-
-        // const userReference = await controllerUserData.getReferenceForPackagesById(req.body.userId)
-        // console.log("FB Dta:", userReference)
         let newArrWithPackagess = req.body.packages
         newArrWithPackagess.forEach(cadaPaquete => {
             cadaPaquete['CustomerReferences'] = customerReference
