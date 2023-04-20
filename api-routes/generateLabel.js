@@ -76,7 +76,7 @@ router.post('/', async (req, res) => {
                             "RequestWaybillDocument": "Y",
                             "HideAccountInWaybillDocument": "Y"
                         },
-                        "LabelType": "ZPL",
+                        "LabelType": "PDF",
                     },
                     "ShipTimestamp": req.body.date + hora,
                     "PaymentInfo": "DDU",
