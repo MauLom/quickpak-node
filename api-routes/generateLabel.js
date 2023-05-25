@@ -26,8 +26,8 @@ router.post('/', async (req, res) => {
     try {
         userId = req.body.userId
         let customerReference = ""
-        if (userId === "4xUVTqVZ1n1FuBikezmQ") {
-            customerReference = "REDBOX"
+        if (userId === "5MAv%2mUE%3KutBXno5E") {
+            customerReference = "Guitar Gear"
         } else if (userId === "enc0UiLq0oNXm1GTFHB8") {
             customerReference = "SRS Express"
         }
@@ -174,7 +174,7 @@ router.post('/estafeta', async (req, res) => {
         dataOrigen = req.body.dataOrigen
         dataDestino = req.body.dataDestino
         descripcionPaquete = req.body.descripcionPaquete
-        if (userId === "4xUVTqVZ1n1FuBikezmQ") {
+        if (userId === "5MAv%2mUE%3KutBXno5E") {
             customerReference = "REDBOX"
         } else if (userId === "enc0UiLq0oNXm1GTFHB8") {
             customerReference = "SRS Express"
