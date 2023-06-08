@@ -17,7 +17,25 @@ const MongoClient = require("mongodb").MongoClient;
 const uri = "mongodb+srv://root:Hyklv5gh@cluster0.dl9kn2d.mongodb.net/test";
 
 module.exports = {
-    findClients: async (data) => {
+    findClients: async () => {
+        const client = new MongoClient(uri);
+        const database = client.db("QuickpakMain");
+        const userfind = database.collection("clients");
+        var result = await userfind.find({})
+        const arrClients = []
+        for await (const doc of result) {
+            arrClients.push(doc)
+        }
+        return arrClients;
+    },
+    findOneClientById: async (data) => {
+        const client = new MongoClient(uri);
+        const database = client.db("QuickpakMain");
+        const userfind = database.collection("clients");
+        var result = await userfind.findOne({idServices: data })
+        return result;
+    },
+    findOneClient: async (data) => {
         const client = new MongoClient(uri);
         const database = client.db("QuickpakMain");
         const userfind = database.collection("clients");
