@@ -7,6 +7,9 @@ router.post('/', (req , res) =>{
         res.status(500).json({status:"error", messages: "No se pudo leer la propiedad data del body"})
     }else{
         data=req.body.data
+        res.status(200).json({ status: "OK", messages: "ok", data: data })
+
         
     }
 })
+module.exports = router;
