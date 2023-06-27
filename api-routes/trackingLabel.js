@@ -40,10 +40,10 @@ router.get('/', async (req, res) => {
         }
 
         const responseDHL = await controllerDHLServices.trackingLabel(dataToDHL)
-        const infoshipnumber =responseDHL.ShipmentInfo?.ShipmentEvent?.ArrayOfShipmentEventItem? responseDHL.ShipmentInfo.ShipmentEvent.ArrayOfShipmentEventItem: 0
-        var datashipment= infoshipnumber[infoshipnumber.length-1]? infoshipnumber[infoshipnumber.length-1]:'sin datos';
+        const infoshipnumber = responseDHL.ShipmentInfo?.ShipmentEvent?.ArrayOfShipmentEventItem ? responseDHL.ShipmentInfo.ShipmentEvent.ArrayOfShipmentEventItem : 0
+        var datashipment = infoshipnumber[infoshipnumber.length - 1] ? infoshipnumber[infoshipnumber.length - 1] : 'sin datos';
 
-        res.status(200).json({status:"Ok", message:"DHL data obtained", data: datashipment})
+        res.status(200).json({ status: "Ok", message: "DHL data obtained", data: datashipment })
     }
 
 })
