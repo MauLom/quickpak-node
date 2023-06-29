@@ -7,7 +7,7 @@ const generateLabel = require('./api-routes/generateLabel')
 const getZoneDHL = require('./api-routes/getZoneDHL')
 const labelsData = require('./api-routes/labelsData')
 const usersData = require('./api-routes/usersData')
-const getUsers = require ('./api-routes/getUsers')
+const getUsers = require('./api-routes/getUsers')
 const generalValues = require('./api-routes/changeGeneralValues')
 const trackingLabels = require('./api-routes/trackingLabel')
 const users = require('./api-routes/users')
@@ -16,7 +16,7 @@ app.use(express.json())
 
 app.use(cors())
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
@@ -41,4 +41,5 @@ app.use('/generalValues', generalValues)
 app.use('/trackingLabel', trackingLabels)
 app.use('/users', users)
 app.use('/editservices', editServices)
+
 module.exports = app;
