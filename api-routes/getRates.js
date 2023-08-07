@@ -175,7 +175,7 @@ router.post('/estafeta', async (req, res) => {
                 const ocurreForzoso = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.ModalidadEntrega.OcurreForzoso
                 dataResponseESTAFETA = await controllerEstafetaServices.getValidServices(dataResponseESTAFETA.TipoServicio.TipoServicio, zone)
                 const calculoSeguro = parseFloat(Number(seguroMontoDeclarado) * 0.0125).toFixed(2)
-                const dataBasedOnUserSheet = await controllerPrices.getPricesEstafetaBasedOnSheet(dataResponseESTAFETA, clientDataSheet, weightForCalcs, zone, Number.parseFloat(ffTaxes.FFTaxes.aerial), Number.parseFloat(ffTaxes.FFTaxes.land), costoReexpedicion != "No" ? costoReexpedicion : "0", calculoSeguro)
+                const dataBasedOnUserSheet = await controllerPrices.getPricesEstafetaBasedOnSheet(dataResponseESTAFETA, clientDataSheet, weightForCalcs, zone, Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 0.09), Number.parseFloat(ffTaxes?.FFTaxes?.land || 0.165), costoReexpedicion != "No" ? costoReexpedicion : "0", calculoSeguro)
                 res.status(200).json({ status: "ok", messages: "OK", data: dataBasedOnUserSheet, diasEntrega: DiasEntrega, manejoEspecial: txtManejoEspecial, ocurreForzoso: ocurreForzoso, zone: zone, })
             }
         }

@@ -15,5 +15,4 @@ router.get('/:userId?', async (req, res) => {
     }
   
 })
-router.get('/')
 module.exports = router

@@ -14,13 +14,18 @@
 // });
 
 const MongoClient = require("mongodb").MongoClient;
-const uri = "mongodb+srv://root:Hyklv5gh@cluster0.dl9kn2d.mongodb.net/test";
+// const uri = "mongodb+srv://root:Hyklv5gh@cluster0.dl9kn2d.mongodb.net/test";
+// const bdName = "QuickpakMain"
+// const collectionName = "clients"
+const bdName = "Quickpak_logistic"
+const collectionName = "users"
+const uri = "mongodb+srv://maulom:rnreqcL5@logisticclcuster.8cqosl5.mongodb.net/"
 
 module.exports = {
     findClients: async () => {
         const client = new MongoClient(uri);
-        const database = client.db("QuickpakMain");
-        const userfind = database.collection("clients");
+        const database = client.db(bdName);
+        const userfind = database.collection(collectionName);
         var result = await userfind.find({})
         const arrClients = []
         for await (const doc of result) {
@@ -30,15 +35,15 @@ module.exports = {
     },
     findOneClientById: async (data) => {
         const client = new MongoClient(uri);
-        const database = client.db("QuickpakMain");
-        const userfind = database.collection("clients");
+        const database = client.db(bdName);
+        const userfind = database.collection(collectionName);
         var result = await userfind.findOne({idServices: data })
         return result;
     },
     findOneClient: async (data) => {
         const client = new MongoClient(uri);
-        const database = client.db("QuickpakMain");
-        const userfind = database.collection("clients");
+        const database = client.db(bdName);
+        const userfind = database.collection(collectionName);
         var referencia = data.referencia;
         var idServices = data.idServices;
         var result = await userfind.findOne({ referencia: referencia, idServices: idServices })
@@ -46,7 +51,7 @@ module.exports = {
     },
     findGeneralValues: async () => {
         const client = new MongoClient(uri);
-        const database = client.db("QuickpakMain");
+        const database = client.db(bdName);
         const generalValuesCollection = database.collection("additionalValues")
         var result = await generalValuesCollection.findOne({"key":"finded"})
         return result;
@@ -54,7 +59,7 @@ module.exports = {
     saveGeneratedLabelDataOnBD: async (data) => {
         const client = new MongoClient(uri);
         try {
-            const database = client.db("QuickpakMain");
+            const database = client.db(bdName);
             const generatedLabels = database.collection("generatedLabels");
             // create a document to insert
             const doc = data
@@ -68,8 +73,8 @@ module.exports = {
     saveGeneratedUsersonBD: async (data) => {
         const client = new MongoClient(uri);
         try {
-            const database = client.db("QuickpakMain");
-            const generatedLabels = database.collection("clients");
+            const database = client.db(bdName);
+            const generatedLabels = database.collection(collectionName);
             // create a document to insert
             const doc = data
             const result = await generatedLabels.insertOne(doc);
@@ -82,7 +87,7 @@ module.exports = {
     saveGeneralValues: async (data) => {
         const mongobd = new MongoClient(uri);
         try {
-            const database = mongobd.db("QuickpakMain");
+            const database = mongobd.db(bdName);
             const additionalValues = database.collection("additionalValues")
             const result = await additionalValues.findOneAndReplace({ "key": "finded" }, {
                 "key":"finded",
@@ -100,7 +105,7 @@ module.exports = {
     },
     findDirectionNotebook: async (data) => {
         const client = new MongoClient(uri);
-        const database = client.db("QuickpakMain");
+        const database = client.db(bdName);
         const directionsNotebooks = database.collection("directionsNotebooks");
         var idServices = data.idServices;
         var result = await directionsNotebooks.findOne({  idServices: idServices })
@@ -111,7 +116,7 @@ module.exports = {
         const mongobd = new MongoClient(uri);
         console.log("Reach this point")
         try{
-            const database = mongobd.db("QuickpakMain");
+            const database = mongobd.db(bdName);
             const directionsNotebooks = database.collection("directionsNotebooks");
             const doc = data
             console.log("The dodc: ", doc)
