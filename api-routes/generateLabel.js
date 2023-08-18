@@ -175,7 +175,7 @@ router.post('/estafeta', async (req, res) => {
         dataDestino = req.body.dataDestino
         descripcionPaquete = req.body.descripcionPaquete
         if (userId === "5MAv%2mUE%3KutBXno5E") {
-            customerReference = "REDBOX"
+            customerReference = "Guitar Gear"
         } else if (userId === "enc0UiLq0oNXm1GTFHB8") {
             customerReference = "SRS Express"
         }
