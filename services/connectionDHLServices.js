@@ -62,7 +62,7 @@ module.exports = {
                 if (code === 0) {
                     return dataResponse.RateResponse.Provider[0].Notification[0]['Message']
                 } else {
-                    var serviceString = JSON.stringify(dataResponse.RateResponse.Provider[0].Service)
+                    var serviceString = JSON.stringify(dataResponse?.RateResponse?.Provider[0].Service)
                     var formattedServicesArr = []
                     if (serviceString.charAt(0) === "{") {
                         formattedServicesArr.push(dataResponse.RateResponse.Provider[0].Service)

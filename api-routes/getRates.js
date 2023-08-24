@@ -78,10 +78,10 @@ router.post('/', async (req, res) => {
         }
         const ffTaxes = await controllerMongoBD.findGeneralValues()
         //const validServicesDHL = await controllerUserData.getValidServices(userId)
-        // const validServicesDHL = ["I", "O", "1", "G", "N"]
-        const validServicesDHL = ["G", "N"]
+        const validServicesDHL = ["I", "O", "1", "G", "N"]
+        //const validServicesDHL = ["G", "N"]
         const zonedhl = getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
-        const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl, Number.parseFloat(ffTaxes.FFTaxes.aerial), Number.parseFloat(ffTaxes.FFTaxes.land), validServicesDHL)
+        const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl,  Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 9), Number.parseFloat(ffTaxes?.FFTaxes?.land || 16.5), validServicesDHL)
 
         res.status(200).json({ status: "OK", messages: "ok", zone: zonedhl, data: pricesBasedOnClientData })
     }
