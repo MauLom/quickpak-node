@@ -81,7 +81,7 @@ router.post('/', async (req, res) => {
         //const validServicesDHL = ["I", "O", "1", "G", "N"]
         const validServicesDHL = ["G", "N"]
         const zonedhl = getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
-        const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl,  Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 9), Number.parseFloat(ffTaxes?.FFTaxes?.land || 16.5), validServicesDHL)
+        const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl,  Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 10.08), Number.parseFloat(ffTaxes?.FFTaxes?.land || 16.6), validServicesDHL)
 
         res.status(200).json({ status: "OK", messages: "ok", zone: zonedhl, data: pricesBasedOnClientData })
     }
@@ -175,7 +175,7 @@ router.post('/estafeta', async (req, res) => {
                 const ocurreForzoso = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.ModalidadEntrega.OcurreForzoso
                 dataResponseESTAFETA = await controllerEstafetaServices.getValidServices(dataResponseESTAFETA.TipoServicio.TipoServicio, zone)
                 const calculoSeguro = parseFloat(Number(seguroMontoDeclarado) * 0.0125).toFixed(2)
-                const dataBasedOnUserSheet = await controllerPrices.getPricesEstafetaBasedOnSheet(dataResponseESTAFETA, clientDataSheet, weightForCalcs, zone, Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 0.09), Number.parseFloat(ffTaxes?.FFTaxes?.land || 0.165), costoReexpedicion != "No" ? costoReexpedicion : "0", calculoSeguro)
+                const dataBasedOnUserSheet = await controllerPrices.getPricesEstafetaBasedOnSheet(dataResponseESTAFETA, clientDataSheet, weightForCalcs, zone, Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 0.1008), Number.parseFloat(ffTaxes?.FFTaxes?.land || 0.166), costoReexpedicion != "No" ? costoReexpedicion : "0", calculoSeguro)
                 res.status(200).json({ status: "ok", messages: "OK", data: dataBasedOnUserSheet, diasEntrega: DiasEntrega, manejoEspecial: txtManejoEspecial, ocurreForzoso: ocurreForzoso, zone: zone, })
             }
         }
