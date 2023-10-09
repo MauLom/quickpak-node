@@ -204,200 +204,198 @@ router.post('/estafeta', async (req, res) => {
         ].join('');
         const dataObj = {
             "identification": {
-                "suscriberId": "WS",
-                "customerNumber": envVariables.noClient
+              "suscriberId": "WS",
+              "customerNumber": envVariables.noClient
             },
             "systemInformation": {
-                "id": "AP01",
-                "name": "AP01",
-                "version": "1.10.20"
+              "id": "AP01",
+              "name": "AP01",
+              "version": "1.10.20"
             },
             "labelDefinition": {
-                "wayBillDocument": {
-                    "aditionalInfo": additionalInfo,
-                    "content": content,
-                    "costCenter": "SPMXA12345",
-                    "customerShipmentId": null,
-                    "referenceNumber": customerReference,
-                    "groupShipmentId": null
-                },
-                "itemDescription": {
-                    "parcelId": 1,
-                    "weight": Number(peso),
-                    "height": Number(alto),
-                    "length": Number(largo),
-                    "width": Number(ancho),
-                    "merchandises": {
-                        "totalGrossWeight": 121.1,
-                        "weightUnitCode": "XLU",
-                        "merchandise": [
-                            {
-                                "merchandiseValue": 0.1,
-                                "currency": "MXN",
-                                "productServiceCode": "10131508",
-                                "merchandiseQuantity": 2.5,
-                                "measurementUnitCode": "F63",
-                                "tariffFraction": "12345678",
-                                "UUIDExteriorTrade": "ABCDed02-a12A-B34B-c56C-c5abcdef61F2",
-                                "isInternational": false,
-                                "isImport": false,
-                                "isHazardousMaterial": false,
-                                "hazardousMaterialCode": "M0035",
-                                "packagingCode": "4A"
-                            }
-                        ]
+              "wayBillDocument": {
+                "aditionalInfo": additionalInfo || "string",
+                "content": content || "Documents.",
+                "costCenter": "SPMXA12345",
+                "customerShipmentId": null,
+                "referenceNumber": customerReference,
+                "groupShipmentId": null
+              },
+              "itemDescription": {
+                "parcelId": 1,
+                "weight": Number(peso),
+                "height": Number(alto),
+                "length": Number(largo),
+                "width": Number(ancho),
+                "merchandises": {
+                  "totalGrossWeight": 121.1,
+                  "weightUnitCode": "XLU",
+                  "merchandise": [
+                    {
+                      "merchandiseValue": 0.1,
+                      "currency": "MXN",
+                      "productServiceCode": "10131508",
+                      "merchandiseQuantity": 2.5,
+                      "measurementUnitCode": "F63",
+                      "tariffFraction": "12345678",
+                      "UUIDExteriorTrade": "ABCDed02-a12A-B34B-c56C-c5abcdef61F2",
+                      "isInternational": false,
+                      "isImport": false,
+                      "isHazardousMaterial": false,
+                      "hazardousMaterialCode": "M0035",
+                      "packagingCode": "4A"
                     }
-                },
-                "serviceConfiguration": {
-                    "quantityOfLabels": 1,
-                    "serviceTypeId": tipoServicioId,
-                    "salesOrganization": envVariables.OrgVentas,
-                    "effectiveDate": dateValidThruFormatted,
-                    "originZipCodeForRouting": "06170",
-                    "isInsurance": llevaSeguro,
-                    "insurance": {
-                        "contentDescription": descripcionPaquete,
-                        "declaredValue": seguroMontoDeclarado
-                    },
-                    "isReturnDocument": false,
-                    "returnDocument": {
-                        "type": "DRFZ",
-                        "serviceId": "60"
-                    }
-                },
-                "location": {
-                    "isDRAAlternative": false,
-                    "DRAAlternative": {
-                        "contact": {
-                            "corporateName": dataOrigen.contacto.nombreCortoDomicilio,
-                            "contactName": dataOrigen.contacto.nombreContacto,
-                            "cellPhone": dataOrigen.contacto.celular,
-                            "telephone": dataOrigen.contacto.telefono,
-                            "phoneExt": "0",
-                            "email": dataOrigen.contacto.email1,
-                            "taxPayerCode": dataOrigen.contacto.RFC
-                        },
-                        "address": {
-                            "bUsedCode": false,
-                            "roadTypeCode": "001",
-                            "roadTypeAbbName": "string",
-                            "roadName": dataOrigen.direccion.calle1 + "," + dataOrigen.direccion.area,
-                            "townshipName": dataOrigen.direccion.area,
-                            "settlementTypeCode": "001",
-                            "settlementTypeAbbName": "string",
-                            "settlementName": dataOrigen.contacto.nombreCortoDomicilio,
-
-                            "stateAbbName": dataOrigen.direccion.estado,
-                            "zipCode": dataOrigen.direccion.zip,
-                            "countryCode": "484",
-                            "countryName": "MEX",
-                            "addressReference": dataOrigen.direccion.referencia,
-                            "externalNum": dataOrigen.direccion.numExt,
-                            "indoorInformation": dataOrigen.direccion.numInt,
-                            "localityName": dataOrigen.direccion.ciudad
-                        }
-                    },
-                    "origin": {
-                        "contact": {
-                            "corporateName": dataOrigen.contacto.nombreCortoDomicilio,
-                            "contactName": dataOrigen.contacto.nombreContacto,
-                            "cellPhone": dataOrigen.contacto.celular,
-                            "telephone": dataOrigen.contacto.telefono,
-                            "phoneExt": "0",
-                            "email": dataOrigen.contacto.email1,
-                            "taxPayerCode": dataOrigen.contacto.RFC
-                        },
-                        "address": {
-                            "bUsedCode": false,
-                            "roadTypeCode": "001",
-                            "roadTypeAbbName": "string",
-                            "roadName": dataOrigen.direccion.calle1 + "," + dataOrigen.direccion.area,
-                            "townshipName": dataOrigen.direccion.area,
-                            "settlementTypeCode": "001",
-                            "settlementTypeAbbName": "string",
-                            "settlementName": dataOrigen.contacto.nombreCortoDomicilio,
-
-                            "stateAbbName": dataOrigen.direccion.estado,
-                            "zipCode": dataOrigen.direccion.zip,
-                            "countryCode": "484",
-                            "countryName": "MEX",
-                            "addressReference": dataOrigen.direccion.referencia,
-                            "externalNum": dataOrigen.direccion.numExt,
-                            "indoorInformation": dataOrigen.direccion.numInt,
-                            "localityName": dataOrigen.direccion.ciudad
-                        }
-                    },
-                    "destination": {
-                        "isDeliveryToPUDO": false,
-                        "deliveryPUDOCode": "567",
-                        "homeAddress": {
-                            "contact": {
-                                "corporateName": dataDestino.contacto.nombreCortoDomicilio,
-                                "contactName": dataDestino.contacto.nombreContacto,
-                                "cellPhone": dataDestino.contacto.celular,
-                                "telephone": dataDestino.contacto.telefono,
-                                "phoneExt": "0",
-                                "email": dataDestino.contacto.email1,
-                                "taxPayerCode": dataDestino.contacto.RFC
-                            },
-                            "address": {
-                                "bUsedCode": false,
-                                "roadTypeCode": "001",
-                                "roadTypeAbbName": "string",
-                                "roadName": dataDestino.direccion.calle1 + "," + dataDestino.direccion.area,
-                                "townshipName": dataDestino.direccion.area,
-                                "settlementTypeCode": "001",
-                                "settlementTypeAbbName": "string",
-                                "settlementName": dataDestino.contacto.nombreCortoDomicilio,
-                                "stateAbbName": dataDestino.direccion.estado,
-
-                                "zipCode": dataDestino.direccion.zip,
-                                "countryCode": "484",
-                                "countryName": "MEX",
-                                "addressReference": dataDestino.direccion.referencia,
-                                "externalNum": dataDestino.direccion.numExt,
-                                "indoorInformation": dataDestino.direccion.numInt,
-                                "localityName": dataDestino.direccion.ciudad
-                            }
-                        }
-                    },
-                    "notified": {
-                        "notifiedTaxIdCode": "notifiedTaxCode",
-                        "notifiedTaxCountry": "MEX",
-                        "residence": {
-                            "contact": {
-                                "corporateName": dataDestino.contacto.nombreCortoDomicilio,
-                                "contactName": dataDestino.contacto.nombreContacto,
-                                "cellPhone": dataDestino.contacto.celular,
-                                "telephone": dataDestino.contacto.telefono,
-                                "phoneExt": "0",
-                                "email": dataDestino.contacto.email1,
-                                "taxPayerCode": dataDestino.contacto.RFC
-                            },
-                            "address": {
-                                "bUsedCode": false,
-                                "roadTypeCode": "001",
-                                "roadTypeAbbName": "string",
-                                "roadName": dataDestino.direccion.calle1 + "," + dataDestino.direccion.area,
-                                "townshipName": dataDestino.direccion.area,
-                                "settlementTypeCode": "001",
-                                "settlementTypeAbbName": "string",
-                                "settlementName": dataDestino.contacto.nombreCortoDomicilio,
-                                "stateAbbName": dataDestino.direccion.estado,
-
-                                "zipCode": dataDestino.direccion.zip,
-                                "countryCode": "484",
-                                "countryName": "MEX",
-                                "addressReference": dataDestino.direccion.referencia,
-                                "externalNum": dataDestino.direccion.numExt,
-                                "indoorInformation": dataDestino.direccion.numInt,
-                                "localityName": dataDestino.direccion.ciudad
-                            }
-                        }
-                    }
+                  ]
                 }
+              },
+              "serviceConfiguration": {
+                "quantityOfLabels": 1,
+                "serviceTypeId": tipoServicioId || "70",
+                "salesOrganization": envVariables.OrgVentas || 112,
+                "effectiveDate": dateValidThruFormatted || "20240301",
+                "originZipCodeForRouting": "06170",
+                "isInsurance": llevaSeguro,
+                "insurance": {
+                  "contentDescription": descripcionPaquete,
+                  "declaredValue": seguroMontoDeclarado
+                },
+                "isReturnDocument": false,
+                "returnDocument": {
+                  "type": "DRFZ",
+                  "serviceId": "60"
+                }
+              },
+              "location": {
+                "isDRAAlternative": false,
+                "DRAAlternative": {
+                  "contact": {
+                    "corporateName": dataOrigen.contacto.nombreCortoDomicilio,
+                    "contactName": dataOrigen.contacto.nombreContacto,
+                    "cellPhone": dataOrigen.contacto.celular,
+                    "telephone": dataOrigen.contacto.telefono,
+                    "phoneExt": "0",
+                    "email": dataOrigen.contacto.email1,
+                    "taxPayerCode": dataOrigen.contacto.RFC
+                  },
+                  "address": {
+                    "bUsedCode": false,
+                    "roadName": dataOrigen.direccion.calle1 + "," + dataOrigen.direccion.area,
+                    "townshipName": dataOrigen.direccion.area,
+                    "settlementName": dataOrigen.contacto.nombreCortoDomicilio,
+                    "stateAbbName": dataOrigen.direccion.estado,
+                    "zipCode": dataOrigen.direccion.zip,
+                    "countryCode": "484",
+                    "countryName": "MEX",
+                    "addressReference": dataOrigen.direccion.referencia,
+                    "externalNum": dataOrigen.direccion.numExt || "00",
+                    "indoorInformation": dataOrigen.direccion.numInt,
+                    "localityName": dataOrigen.direccion.ciudad
+                  }
+                },
+                "origin": {
+                  "contact": {
+                    "corporateName": dataOrigen.contacto.nombreCortoDomicilio,
+                    "contactName": dataOrigen.contacto.nombreContacto,
+                    "cellPhone": dataOrigen.contacto.celular,
+                    "telephone": dataOrigen.contacto.telefono,
+                    "phoneExt": "0",
+                    "email": dataOrigen.contacto.email1,
+                    "taxPayerCode": dataOrigen.contacto.RFC
+                  },
+                  "address": {
+                    "bUsedCode": false,
+                    "roadTypeAbbName": "string",
+                    "roadName": dataOrigen.direccion.calle1 + "," + dataOrigen.direccion.area,
+                    "townshipName": dataOrigen.direccion.area,
+                    "settlementTypeAbbName": "string",
+                    "settlementName": dataOrigen.contacto.nombreCortoDomicilio,
+                    "stateAbbName": dataOrigen.direccion.estado,
+                    "zipCode": dataOrigen.direccion.zip,
+                    "countryCode": "484",
+                    "countryName": "MEX",
+                    "addressReference": dataOrigen.direccion.referencia,
+                    "externalNum": dataOrigen.direccion.numExt || "00",
+                    "indoorInformation": dataOrigen.direccion.numInt,
+                    "localityName": dataOrigen.direccion.ciudad,
+                    "betweenRoadName1": "La Morelos",
+                    "betweenRoadName2": "Los Estrada",
+                  }
+                },
+                "destination": {
+                  "isDeliveryToPUDO": false,
+                  "deliveryPUDOCode": "567",
+                  "homeAddress": {
+                    "contact": {
+                      "corporateName": dataDestino.contacto.nombreCortoDomicilio,
+                      "contactName": dataDestino.contacto.nombreContacto,
+                      "cellPhone": dataDestino.contacto.celular,
+                      "telephone": dataDestino.contacto.telefono,
+                      "phoneExt": "0",
+                      "email": dataDestino.contacto.email1,
+                      "taxPayerCode": dataDestino.contacto.RFC
+                    },
+                    "address": {
+                      "bUsedCode": false,
+                      "roadTypeCode": "001",
+                      "roadTypeAbbName": "string",
+                      "roadName": dataDestino.direccion.calle1 + "," + dataDestino.direccion.area,
+                      "townshipName": dataDestino.direccion.area,
+                      "settlementTypeCode": "001",
+                      "settlementTypeAbbName": "string",
+                      "settlementName": dataDestino.contacto.nombreCortoDomicilio,
+                      "stateAbbName": dataDestino.direccion.estado,
+                      "zipCode": dataDestino.direccion.zip,
+                      "countryCode": "484",
+                      "countryName": "MEX",
+                      "addressReference": dataDestino.direccion.referencia,
+                      "externalNum": dataDestino.direccion.numExt || "00",
+                      "indoorInformation": dataDestino.direccion.numInt,
+                      "localityName": dataDestino.direccion.ciudad,
+          
+                      "betweenRoadName1": "La Morelos",
+                      "betweenRoadName2": "Los Estrada",
+                    }
+                  }
+                },
+                "notified": {
+                  "notifiedTaxIdCode": "notifiedTaxCode",
+                  "notifiedTaxCountry": "MEX",
+                  "residence": {
+                    "contact": {
+                      "corporateName": dataDestino.contacto.nombreCortoDomicilio,
+                      "contactName": dataDestino.contacto.nombreContacto,
+                      "cellPhone": dataDestino.contacto.celular,
+                      "telephone": dataDestino.contacto.telefono,
+                      "phoneExt": "0",
+                      "email": dataDestino.contacto.email1,
+                      "taxPayerCode": dataDestino.contacto.RFC
+                    },
+                    "address": {
+                      "bUsedCode": false,
+                      "roadTypeCode": "001",
+                      "roadTypeAbbName": "string",
+                      "roadName": dataDestino.direccion.calle1 + "," + dataDestino.direccion.area,
+                      "townshipName": dataDestino.direccion.area,
+                      "settlementTypeCode": "001",
+                      "settlementTypeAbbName": "string",
+                      "settlementName": dataDestino.contacto.nombreCortoDomicilio,
+                      "stateAbbName": dataDestino.direccion.estado,
+                      "zipCode": dataDestino.direccion.zip,
+                      "countryCode": "484",
+                      "countryName": "MEX",
+                      "addressReference": dataDestino.direccion.referencia,
+                      "externalNum": dataDestino.direccion.numExt || "00",
+                      "indoorInformation": dataDestino.direccion.numInt,
+                      "localityName": dataDestino.direccion.ciudad,
+          
+                      "betweenRoadName1": "La Morelos",
+                      "betweenRoadName2": "Los Estrada",
+                    }
+                  }
+                }
+              }
             }
-        }
+          }
         const response = await controllerEstafetaServices.generateLabel(dataObj)
 
         if (null !== response?.data) {

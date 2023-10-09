@@ -27,10 +27,15 @@ module.exports = {
     generateLabel: async (dataToSend) => {
         const bearerToken = await getClientCredentials()
         const bearerStringWithToken = "Bearer " + bearerToken.access_token
+        
+        
         const config = {
             headers: {
                 apiKey: envVariables.EstftApiKey,
-                Authorization: bearerStringWithToken
+                Authorization: bearerStringWithToken,
+                ContentType : "application/json",
+                Accept: "*",
+                AcceptEncoding: "gzip, deflate, br"
             }
         }
         const resolvedRequest = await axios
