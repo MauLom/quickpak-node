@@ -30,6 +30,10 @@ router.post('/', async (req, res) => {
             customerReference = "Guitar Gear"
         } else if (userId === "enc0UiLq0oNXm1GTFHB8") {
             customerReference = "SRS Express"
+        }else if (userId === "ui0125skguelosfjg980") {
+          customerReference = "REDBOX"
+        } else {
+          customerReference = "Quickpak"
         }
         let newArrWithPackagess = req.body.packages
         newArrWithPackagess.forEach(cadaPaquete => {
