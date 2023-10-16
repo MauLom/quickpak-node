@@ -19,7 +19,7 @@ client.connect().then(() => {
   const usersCollection = db.collection("users");
 
   // Define a route for creating a new user using the POST method
-  router.post("/api/users", async (req, res) => {
+  router.post("/users", async (req, res) => {
     const { email, password, string_reference, available_services } = req.body;
 
     const user = {
@@ -38,7 +38,7 @@ client.connect().then(() => {
   });
 
   // Define a route for retrieving a user by ID using the GET method
-  router.get("/api/users/:id", async (req, res) => {
+  router.get("/users/:id", async (req, res) => {
     const userId = req.params.id;
 
     try {
@@ -53,7 +53,7 @@ client.connect().then(() => {
     }
   });
 
-  router.get("/api/users", async (req, res) => {
+  router.get("/users", async (req, res) => {
     try {
       // Retrieve all users from the users collection
       const allUsers = await usersCollection.find().toArray();
@@ -64,7 +64,7 @@ client.connect().then(() => {
     }
   });
     // Define a route for getting available services for a user using the GET method
-router.get("/api/users/:id/available-services", async (req, res) => {
+router.get("/users/:id/available-services", async (req, res) => {
   const userId = req.params.id;
 
   try {
@@ -84,7 +84,7 @@ router.get("/api/users/:id/available-services", async (req, res) => {
 });
 
   // Define a route for updating a user by ID using the PUT method
-  router.put("/api/users/:id", async (req, res) => {
+  router.put("/users/:id", async (req, res) => {
     const userId = req.params.id;
     const { email, password, string_reference, available_services } = req.body;
 
@@ -111,7 +111,7 @@ router.get("/api/users/:id/available-services", async (req, res) => {
   });
 
   // Define a route for deleting a user by ID using the DELETE method
-  router.delete("/api/users/:id", async (req, res) => {
+  router.delete("/users/:id", async (req, res) => {
     const userId = req.params.id;
 
     try {
@@ -127,7 +127,7 @@ router.get("/api/users/:id/available-services", async (req, res) => {
   });
 
   // Define a route for updating available services for a user using the PATCH method
- router.patch("/api/users/:id/available-services", async (req, res) => {
+ router.patch("/users/:id/available-services", async (req, res) => {
     const userId = req.params.id;
     const { available_services } = req.body;
   

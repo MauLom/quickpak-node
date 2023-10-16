@@ -37,6 +37,6 @@ app.use('/generalValues', generalValues)
 app.use('/trackingLabel', trackingLabels)
 app.use('/users', users)
 app.use('/editservices', editServices)
-app.use('',usersV2 )
+app.use('/api',usersV2 )
 
 module.exports = app;
