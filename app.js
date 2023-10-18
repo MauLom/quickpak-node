@@ -12,7 +12,10 @@ const generalValues = require('./api-routes/changeGeneralValues')
 const trackingLabels = require('./api-routes/trackingLabel')
 const users = require('./api-routes/users')
 const editServices = require('./api-routes/editServices')
+
+///V2 imports
 const usersV2 = require('./api-routesV2/users')
+const providers = require('./api-routesV2/providers')
 app.use(express.json())
 
 app.use(cors())
@@ -37,6 +40,8 @@ app.use('/generalValues', generalValues)
 app.use('/trackingLabel', trackingLabels)
 app.use('/users', users)
 app.use('/editservices', editServices)
-app.use('/api/users',usersV2 )
 
+///V2
+app.use('/api/users',usersV2 )
+app.use('/api/providers', providers)
 module.exports = app;

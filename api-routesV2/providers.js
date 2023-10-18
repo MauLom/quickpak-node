@@ -17,7 +17,7 @@ client.connect().then(() => {
   const providersCollection = db.collection("providers");
 
   // Define a route for creating a new provider using the POST method
-  router.post("/api/providers", async (req, res) => {
+  router.post("", async (req, res) => {
     const { name, services } = req.body;
 
     const provider = {
@@ -34,7 +34,7 @@ client.connect().then(() => {
   });
 
   // Define a route for retrieving a provider by ID using the GET method
-  router.get("/api/providers/:id", async (req, res) => {
+  router.get("/:id", async (req, res) => {
     const providerId = req.params.id;
 
     try {
@@ -50,7 +50,7 @@ client.connect().then(() => {
   });
 
   // Define a route for updating a provider by ID using the PUT method
-  router.put("/api/providers/:id", async (req, res) => {
+  router.put("/:id", async (req, res) => {
     const providerId = req.params.id;
     const { name, services } = req.body;
 
@@ -75,7 +75,7 @@ client.connect().then(() => {
   });
 
   // Define a route for deleting a provider by ID using the DELETE method
-  router.delete("/api/providers/:id", async (req, res) => {
+  router.delete("/:id", async (req, res) => {
     const providerId = req.params.id;
 
     try {
