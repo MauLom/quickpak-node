@@ -89,6 +89,16 @@ client.connect().then(() => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+  // Define a route to retrieve all providers using the GET method
+  router.get("", async (req, res) => {
+    try {
+      const allProviders = await providersCollection.find().toArray();
+      res.status(200).json(allProviders);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
 });
 
 module.exports = router;
