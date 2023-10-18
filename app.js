@@ -43,5 +43,5 @@ app.use('/editservices', editServices)
 
 ///V2
 app.use('/api/users',usersV2 )
-app.use('/api/providers', providers)
+app.use('/api/provider', providers)
 module.exports = app;
