@@ -20,18 +20,20 @@ client.connect().then(() => {
 
   // Define a route for creating a new user using the POST method
   router.post("", async (req, res) => {
-    const { email, password, string_reference, available_services } = req.body;
+    const { userName, email, password, string_reference, available_services, role } = req.body;
 
     const user = {
+      userName,
       email,
       password,
       string_reference,
       available_services,
+      role
     };
 
     try {
       const result = await usersCollection.insertOne(user);
-      res.status(201).json(result.ops[0]);
+      res.status(201).json(result);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
     }
@@ -57,31 +59,31 @@ client.connect().then(() => {
     try {
       // Retrieve all users from the users collection
       const allUsers = await usersCollection.find().toArray();
-  
+
       res.status(200).json(allUsers);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-    // Define a route for getting available services for a user using the GET method
-router.get("/:id/available-services", async (req, res) => {
-  const userId = req.params.id;
+  // Define a route for getting available services for a user using the GET method
+  router.get("/:id/available-services", async (req, res) => {
+    const userId = req.params.id;
 
-  try {
-    // Retrieve the user by ID
-    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    try {
+      // Retrieve the user by ID
+      const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
-    if (user) {
-      // If the user is found, return the available_services field
-      const availableServices = user.available_services || [];
-      res.status(200).json({ available_services: availableServices });
-    } else {
-      res.status(404).json({ message: "User not found" });
+      if (user) {
+        // If the user is found, return the available_services field
+        const availableServices = user.available_services || [];
+        res.status(200).json({ available_services: availableServices });
+      } else {
+        res.status(404).json({ message: "User not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
     }
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+  });
 
   // Define a route for updating a user by ID using the PUT method
   router.put("/:id", async (req, res) => {
@@ -92,7 +94,7 @@ router.get("/:id/available-services", async (req, res) => {
       email,
       password,
       string_reference,
-      available_services,
+      provider_access: available_services,
     };
 
     try {
@@ -127,17 +129,17 @@ router.get("/:id/available-services", async (req, res) => {
   });
 
   // Define a route for updating available services for a user using the PATCH method
- router.patch("/:id/available-services", async (req, res) => {
+  router.patch("/:id/available-services", async (req, res) => {
     const userId = req.params.id;
     const { available_services } = req.body;
-  
+
     try {
       // Update the user's available_services field
       const result = await usersCollection.updateOne(
         { _id: new ObjectId(userId) },
         { $set: { available_services } }
       );
-  
+
       if (result.modifiedCount === 1) {
         res.status(200).json({ message: "User's available services updated" });
       } else {
@@ -147,9 +149,9 @@ router.get("/:id/available-services", async (req, res) => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-  
 
-  
+
+
 
 });
 
