@@ -88,13 +88,15 @@ client.connect().then(() => {
   // Define a route for updating a user by ID using the PUT method
   router.put("/:id", async (req, res) => {
     const userId = req.params.id;
-    const { email, password, string_reference, available_services } = req.body;
+    const { userName, email, password, string_reference, provider_access, role } = req.body;
 
     const updatedUser = {
+      userName,
       email,
       password,
       string_reference,
-      provider_access: available_services,
+      provider_access,
+      role
     };
 
     try {

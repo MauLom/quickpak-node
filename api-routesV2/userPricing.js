@@ -17,7 +17,7 @@ client.connect().then(() => {
   const userPricingCollection = db.collection("user_pricing");
 
   // Define a route for creating or updating user pricing using the POST method
-  router.post("/api/user-pricing", async (req, res) => {
+  router.post("", async (req, res) => {
     const { user_id, provider_id, service, zone, csvData } = req.body;
     const prices = csvData.split(",").map((price) => price.trim());
 
@@ -51,8 +51,8 @@ client.connect().then(() => {
     }
   });
 
-  // Define a route for updating user pricing with the PATCH method
-  router.patch("/api/user-pricing", async (req, res) => {
+  // Define a route for updating user pricing with the PUT method
+  router.put("", async (req, res) => {
     const { user_id, provider_id, service, zone, csvData } = req.body;
     const prices = csvData.split(",").map((price) => price.trim());
 
@@ -81,8 +81,9 @@ client.connect().then(() => {
     }
   });
 
+
   // Define a route for retrieving user pricing with the GET method
-  router.get("/api/user-pricing", async (req, res) => {
+  router.get("", async (req, res) => {
     const { user_id, provider_id, service, zone } = req.query;
     const query = { user_id, provider_id, service, zone };
 
@@ -99,7 +100,7 @@ client.connect().then(() => {
   });
 
   // Define a route for deleting user pricing with the DELETE method
-  router.delete("/api/user-pricing", async (req, res) => {
+  router.delete("", async (req, res) => {
     const { user_id, provider_id, service, zone } = req.query;
     const query = { user_id, provider_id, service, zone };
 
