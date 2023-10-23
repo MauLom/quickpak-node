@@ -24,40 +24,61 @@ const uri = "mongodb+srv://maulom:rnreqcL5@logisticclcuster.8cqosl5.mongodb.net/
 module.exports = {
     findClients: async () => {
         const client = new MongoClient(uri);
-        const database = client.db(bdName);
-        const userfind = database.collection(collectionName);
-        var result = await userfind.find({})
-        const arrClients = []
-        for await (const doc of result) {
-            arrClients.push(doc)
+
+        try {
+            const database = client.db(bdName);
+            const userfind = database.collection(collectionName);
+            var result = await userfind.find({})
+            const arrClients = []
+            for await (const doc of result) {
+                arrClients.push(doc)
+            }
+            return arrClients;
+        } catch (error) { console.error("findClientsError:", error) }
+        finally {
+            client.close()
         }
-        return arrClients;
     },
     findOneClientById: async (data) => {
         const client = new MongoClient(uri);
-        const database = client.db(bdName);
-        const userfind = database.collection(collectionName);
-        var result = await userfind.findOne({idServices: data })
-        return result;
+
+        try {
+            const database = client.db(bdName);
+            const userfind = database.collection(collectionName);
+            var result = await userfind.findOne({ idServices: data })
+            return result;
+        } catch (error) { console.error("findOneClientById:", error) }
+        finally { client.close() }
     },
     findOneClient: async (data) => {
         const client = new MongoClient(uri);
-        const database = client.db(bdName);
-        const userfind = database.collection(collectionName);
-        var referencia = data.referencia;
-        var idServices = data.idServices;
-        var result = await userfind.findOne({ referencia: referencia, idServices: idServices })
-        return result;
+
+        try {
+            const database = client.db(bdName);
+            const userfind = database.collection(collectionName);
+            var referencia = data.referencia;
+            var idServices = data.idServices;
+            var result = await userfind.findOne({ referencia: referencia, idServices: idServices })
+            return result;
+        }
+        catch (error) { console.error("findOneClient", error) }
+        finally { client.close() }
     },
     findGeneralValues: async () => {
         const client = new MongoClient(uri);
-        const database = client.db(bdName);
-        const generalValuesCollection = database.collection("additionalValues")
-        var result = await generalValuesCollection.findOne({"key":"finded"})
-        return result;
+
+        try {
+            const database = client.db(bdName);
+            const generalValuesCollection = database.collection("additionalValues")
+            var result = await generalValuesCollection.findOne({ "key": "finded" })
+            return result;
+        }
+        catch (error) { console.error("findOneClient", error) }
+        finally { client.close() }
     },
     saveGeneratedLabelDataOnBD: async (data) => {
         const client = new MongoClient(uri);
+
         try {
             const database = client.db(bdName);
             const generatedLabels = database.collection("generatedLabels");
@@ -72,6 +93,7 @@ module.exports = {
     },
     saveGeneratedUsersonBD: async (data) => {
         const client = new MongoClient(uri);
+
         try {
             const database = client.db(bdName);
             const generatedLabels = database.collection(collectionName);
@@ -85,12 +107,13 @@ module.exports = {
         }
     },
     saveGeneralValues: async (data) => {
-        const mongobd = new MongoClient(uri);
+        const client = new MongoClient(uri);
+
         try {
-            const database = mongobd.db(bdName);
+            const database = client.db(bdName);
             const additionalValues = database.collection("additionalValues")
             const result = await additionalValues.findOneAndReplace({ "key": "finded" }, {
-                "key":"finded",
+                "key": "finded",
                 "FFTaxes": {
                     "aerial": data.aerial,
                     "land": data.land
@@ -100,23 +123,28 @@ module.exports = {
         catch (error) {
             console.log("Error:", error)
         } finally {
-            await mongobd.close()
+            await client.close()
         }
     },
     findDirectionNotebook: async (data) => {
         const client = new MongoClient(uri);
-        const database = client.db(bdName);
-        const directionsNotebooks = database.collection("directionsNotebooks");
-        var idServices = data.idServices;
-        var result = await directionsNotebooks.findOne({  idServices: idServices })
-        console.log('controler ' + result)
-        return result;
+
+        try {
+            const database = client.db(bdName);
+            const directionsNotebooks = database.collection("directionsNotebooks");
+            var idServices = data.idServices;
+            var result = await directionsNotebooks.findOne({ idServices: idServices })
+            console.log('controler ' + result)
+            return result;
+        }
+        catch (error) { console.error("findOneClient", error) }
+        finally { client.close() }
     },
-    saveDirectionsNoteBook: async (data) =>{
-        const mongobd = new MongoClient(uri);
-        console.log("Reach this point")
-        try{
-            const database = mongobd.db(bdName);
+    saveDirectionsNoteBook: async (data) => {
+        const client = new MongoClient(uri);
+
+        try {
+            const database = client.db(bdName);
             const directionsNotebooks = database.collection("directionsNotebooks");
             const doc = data
             console.log("The dodc: ", doc)
@@ -125,7 +153,7 @@ module.exports = {
         } catch (error) {
             console.log("Error:", error)
         } finally {
-            await mongobd.close()
+            await client.close()
         }
     }
 }

@@ -7,11 +7,10 @@ const controllerWeight = require('../services/calculateWeight')
 const controllerUserData = require('../models/controllerFirebaseBD')
 const controllerPrices = require('../services/calculatePricesWithClientData');
 const getzoneDHL = require('../services/zoneRequest')
-
-
-const controllerFirebaseBD = require('../models/controllerFirebaseBD');
 const controllerZonesEstafeta = require('../models/controllerSigsAndZonesEstafeta');
 const controllerMongoBD = require('../models/controllerMongoBD');
+
+
 router.post('/', async (req, res) => {
     var timestamp = ""
     var shipperCity = ""

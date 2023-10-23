@@ -14,6 +14,10 @@ const dbName = process.env.DB_NAME;
 // MongoDB connection initialization
 const client = new MongoClient(url, { useUnifiedTopology: true });
 
+process.on('exit', () => {
+  client.close();
+});
+
 client.connect().then(() => {
   const db = client.db(dbName);
   const usersCollection = db.collection("users");

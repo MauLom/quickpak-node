@@ -46,6 +46,6 @@ app.use('/editservices', editServices)
 ///V2
 app.use('/api/users',usersV2 )
 app.use('/api/provider', providers)
-app.use('/api/user-pricing', userPricing)
+app.use('/api/userPricing', userPricing)
 app.use('/api/zip',zips)
 module.exports = app;

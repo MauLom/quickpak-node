@@ -8,9 +8,12 @@ router.use(bodyParser.json());
 // Connection URL and database name
 const url = process.env.MONGO_URI;
 const dbName = process.env.DB_NAME;
-
 // MongoDB connection initialization
 const client = new MongoClient(url, { useUnifiedTopology: true });
+
+process.on('exit', () => {
+  client.close();
+});
 
 client.connect().then(() => {
   const db = client.db(dbName);
@@ -18,15 +21,13 @@ client.connect().then(() => {
 
   // Define a route for creating or updating user pricing using the POST method
   router.post("", async (req, res) => {
-    const { user_id, provider_id, service, zone, csvData } = req.body;
-    const prices = csvData.split(",").map((price) => price.trim());
+    const { user_id, provider_id, service, pricing } = req.body;
 
     // Find an existing document or insert a new one
     const query = {
       user_id,
       provider_id,
       service,
-      zone,
     };
 
     const update = {
@@ -34,8 +35,7 @@ client.connect().then(() => {
         user_id,
         provider_id,
         service,
-        zone,
-        prices,
+        pricing,
       },
     };
 
@@ -53,14 +53,13 @@ client.connect().then(() => {
 
   // Define a route for updating user pricing with the PUT method
   router.put("", async (req, res) => {
-    const { user_id, provider_id, service, zone, csvData } = req.body;
-    const prices = csvData.split(",").map((price) => price.trim());
+    const { user_id, provider_id, service, prices } = req.body;
+    // const prices = csvData.split(",").map((price) => price.trim());
 
     const query = {
       user_id,
       provider_id,
       service,
-      zone,
     };
 
     const update = {
@@ -84,8 +83,8 @@ client.connect().then(() => {
 
   // Define a route for retrieving user pricing with the GET method
   router.get("", async (req, res) => {
-    const { user_id, provider_id, service, zone } = req.query;
-    const query = { user_id, provider_id, service, zone };
+    const { user_id, provider_id, service } = req.query;
+    const query = { user_id, provider_id, service };
 
     try {
       const userPricing = await userPricingCollection.findOne(query);
@@ -116,5 +115,4 @@ client.connect().then(() => {
     }
   });
 });
-
 module.exports = router;
