@@ -46,7 +46,6 @@ router.post('/', async (req, res) => {
         res.status(500).json({ status: "error", messages: "No se pudo leer la propiedad 'insurance' del body" })
     } else if (req.body.userId === "" || req.body.userId === undefined) {
         res.status(500).json({ status: "error", messages: "No se pudo leer la propiedad 'userId' del body" })
-
     }
     else {
         timestamp = req.body.timestamp
