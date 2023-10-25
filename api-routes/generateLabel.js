@@ -19,7 +19,7 @@ function padTo2Digits(num) {
 }
 router.post('/', async (req, res) => {
     var userId = ""
-    let hora = "T12:00:00 GMT-05:00"
+    let hora = "T17:30:00 GMT-06:00"
     if (req.body.hora !== undefined) {
         hora = req.body.hora
     }
