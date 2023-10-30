@@ -7,11 +7,21 @@ router.use(bodyParser.json());
 
 const getzoneDHL = require('../services/zoneRequest')
 const controllerDHLServices = require('../services/connectionDHLServices')
+const controllerEstafetaServices = require('../services/connectionESTAFETAServices')
 const controllerWeight = require('../services/calculateWeight')
 
 const url = process.env.MONGO_URI;
 const dbName = process.env.DB_NAME;
 const client = new MongoClient(url, { useUnifiedTopology: true });
+
+function numberToZoneString(number) {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (number < 1 || number > 8) {
+        throw new Error('No se encontro Zona con los CP proporcionados');
+    }
+    const zoneLetter = alphabet.charAt(number - 1);
+    return ` Zona ${zoneLetter}`;
+}
 
 process.on('exit', () => {
     client.close();
@@ -27,21 +37,13 @@ client.connect().then(() => {
             const requiredProperties = ['timestamp', 'shipperCity', 'shipperCountryCode', 'shipperZip', 'recipientCity', 'recipientCountryCode', 'recipientZip', 'packages', 'insurance', 'userId'];
             validateRequiredProperties(req, res, requiredProperties);
 
-            let hora = "";
             if (req.body.hora !== undefined) {
                 seguroMontoDeclarado = parseFloat(req.body.seguro).toFixed(2);
                 seguroMontoDeclarado = seguroMontoDeclarado.replace(",", ".");
                 llevaSeguro = true;
             }
 
-            function numberToZoneString(number) {
-                const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                if (number < 1 || number > 8) {
-                    throw new Error('No se encontro Zona con los CP proporcionados');
-                }
-                const zoneLetter = alphabet.charAt(number - 1);
-                return ` Zona ${zoneLetter}`;
-            }
+
 
             const zoneAsNumber = getzoneDHL.getZoneRequest(req.body.shipperZip, req.body.recipientZip);
             const zonedhl = numberToZoneString(zoneAsNumber);
@@ -103,7 +105,7 @@ client.connect().then(() => {
                     return totalExtraPrice
                 }
             }
-            
+
 
             const FFGroundTax = 16.8;
             const FFAerialTax = 10.8;
@@ -158,6 +160,93 @@ client.connect().then(() => {
             res.status(500).json({ message: `Error occurred during processing: ${error.message}` });
         }
     })
+    router.post('/estafeta', async (req, res) => {
+        try {
+            const requiredFields = ['alto', 'ancho', 'esPaquete', 'largo', 'peso', 'originZip', 'destinyZip', 'userId'];
+            const missingField = requiredFields.find(field => !req.body[field]);
+
+            if (missingField) {
+                throw new Error(`No se pudo leer la propiedad '${missingField}' del body`);
+            }
+
+            const {
+                alto,
+                ancho,
+                esPaquete,
+                largo,
+                peso,
+                originZip,
+                destinyZip,
+                userId,
+                seguro: seguroMontoDeclarado = 0
+            } = req.body;
+
+            const dataRequest = {
+                "idusuario": "1",
+                "usuario": "AdminUser",
+                "contra": ",1,B(vVi",
+                "esFrecuencia": "true",
+                "esLista": "true",
+                "tipoEnvio": {
+                    "Alto": alto,
+                    "Ancho": ancho,
+                    "EsPaquete": esPaquete,
+                    "Largo": largo,
+                    "Peso": peso
+                },
+                "datosOrigen": {
+                    "string": [
+                        originZip
+                    ]
+                },
+                "datosDestino": {
+                    "string": [
+                        destinyZip
+                    ]
+                }
+            }
+
+            const dataResponseESTAFETARaw = await controllerEstafetaServices.getRates(dataRequest);
+            let dataResponseESTAFETA = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta;
+
+            if (dataResponseESTAFETA.Error !== '000') {
+                throw new Error(dataResponseESTAFETA.MensajeError);
+            }
+
+            const zoneAsNumber = getzoneDHL.getZoneRequest(req.body.shipperZip, req.body.recipientZip);
+            const zone = numberToZoneString(zoneAsNumber);
+
+            if (zone.error) {
+                throw new Error(zone.error);
+            }
+
+            // Retrieve necessary data and perform other required operations...
+            // ...
+
+            // const dataBasedOnUserSheet = await controllerPrices.getPricesEstafetaBasedOnSheet(
+            //     dataResponseESTAFETA,
+            //     clientDataSheet,
+            //     weightForCalcs,
+            //     zone,
+            //     Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 0.108),
+            //     Number.parseFloat(ffTaxes?.FFTaxes?.land || 0.168),
+            //     costoReexpedicion !== 'No' ? costoReexpedicion : '0',
+            //     calculoSeguro
+            // );
+
+            res.status(200).json({
+                status: 'ok',
+                messages: 'OK',
+                data: dataResponseESTAFETARaw,
+                manejoEspecial: 'Envíos identificados como frágil, empaque irregular, envíos no transportables por bandas pueden generar un costo extra de  $63.67',
+                zone: zone
+            });
+        } catch (error) {
+            res.status(500).json({ message: `Error occurred during processing: ${error.message}` });
+        }
+    });
+
+
 });
 
 module.exports = router;

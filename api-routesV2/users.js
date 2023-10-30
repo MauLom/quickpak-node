@@ -24,7 +24,7 @@ client.connect().then(() => {
 
   // Define a route for creating a new user using the POST method
   router.post("", async (req, res) => {
-    const { userName, email, password, string_reference, available_services, role } = req.body;
+    const { userName, email, password, string_reference, available_services, role, provider_access } = req.body;
 
     const user = {
       userName,
@@ -32,7 +32,8 @@ client.connect().then(() => {
       password,
       string_reference,
       available_services,
-      role
+      role,
+      provider_access
     };
 
     try {
