@@ -42,7 +42,6 @@ client.connect().then(() => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-
   // Define a route for retrieving a user by ID using the GET method
   router.get("/:id", async (req, res) => {
     const userId = req.params.id;
@@ -58,7 +57,7 @@ client.connect().then(() => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-
+  
   router.get("", async (req, res) => {
     try {
       // Retrieve all users from the users collection
@@ -88,7 +87,6 @@ client.connect().then(() => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-
   // Define a route for updating a user by ID using the PUT method
   router.put("/:id", async (req, res) => {
     const userId = req.params.id;
@@ -117,7 +115,6 @@ client.connect().then(() => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-
   // Define a route for deleting a user by ID using the DELETE method
   router.delete("/:id", async (req, res) => {
     const userId = req.params.id;
@@ -133,7 +130,6 @@ client.connect().then(() => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-
   // Define a route for updating available services for a user using the PATCH method
   router.patch("/:id/available-services", async (req, res) => {
     const userId = req.params.id;
@@ -155,9 +151,6 @@ client.connect().then(() => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-
-
-
 
 });
 

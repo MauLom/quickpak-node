@@ -18,6 +18,7 @@ const usersV2 = require('./api-routesV2/users')
 const providers = require('./api-routesV2/providers')
 const userPricing = require('./api-routesV2/userPricing')
 const zips = require('./api-routesV2/zipCodes')
+const rates = require ('./api-routesV2/rates')
 app.use(express.json())
 
 app.use(cors())
@@ -48,4 +49,5 @@ app.use('/api/users',usersV2 )
 app.use('/api/provider', providers)
 app.use('/api/userPricing', userPricing)
 app.use('/api/zip',zips)
+app.use('/api/rates', rates)
 module.exports = app;
