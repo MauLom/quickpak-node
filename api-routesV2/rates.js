@@ -23,6 +23,37 @@ function numberToZoneString(number) {
     return ` Zona ${zoneLetter}`;
 }
 
+function getServicesByProvider(arr, provider) {
+    const foundProvider = arr.find(item => item.provider_id === provider);
+    if (!foundProvider) {
+        throw new Error('El usuario no cuenta con servicios de este proveedor');
+    }
+    return foundProvider.services;
+}
+
+function getPrice(priceList, kg, zone) {
+    if (kg <= 30) {
+        const zonePrice = priceList.find(entry => entry.kg === kg);
+        if (!zonePrice) {
+            throw new Error(`No matching price found for the given kg ${kg}`);
+        }
+        const foundZonePrice = zonePrice.prices.find(price => price.zone === zone);
+        return foundZonePrice ? foundZonePrice.price : `No matching price found for the given zone ${zone}`;
+    }
+    if (kg > 30) {
+        const price30 = priceList.find(entry => entry.kg === 30);
+        const extraPrice = priceList.find(entry => entry.kg === 'extra');
+        const price30ForZone = price30.prices.find(price => price.zone === zone);
+        const extraPriceForZone = extraPrice.prices.find(price => price.zone === zone);
+        if (!extraPriceForZone || !price30ForZone) {
+            throw new Error(`No matching price found for the given zone ${zone}`);
+        }
+        const extraWeight = kg - 30;
+        const totalExtraPrice = (extraWeight * extraPriceForZone.price) + price30ForZone.price;
+        return totalExtraPrice
+    }
+}
+
 process.on('exit', () => {
     client.close();
 });
@@ -31,6 +62,9 @@ client.connect().then(() => {
     const db = client.db(dbName);
     const usersCollection = db.collection("users");
     const userPricingCollection = db.collection("user_pricing")
+
+    const FFGroundTax = 16.8;
+    const FFAerialTax = 10.8;
 
     router.post('/DHL', async (req, res) => {
         try {
@@ -43,21 +77,11 @@ client.connect().then(() => {
                 llevaSeguro = true;
             }
 
-
-
             const zoneAsNumber = getzoneDHL.getZoneRequest(req.body.shipperZip, req.body.recipientZip);
             const zonedhl = numberToZoneString(zoneAsNumber);
 
             const dataToDHL = controllerDHLServices.structureRequestToDHL(req.body.timestamp, req.body.shipperCity, req.body.shipperZip, req.body.shipperCountryCode, req.body.recipientCity, req.body.recipientZip, req.body.recipientCountryCode, req.body.packages, req.body.insurance);
             const dataResponseDHL = await controllerDHLServices.getRateAndStructure(dataToDHL);
-
-            function getServicesByProvider(arr, provider) {
-                const foundProvider = arr.find(item => item.provider_id === provider);
-                if (!foundProvider) {
-                    throw new Error('El usuario no cuenta con servicios de este proveedor');
-                }
-                return foundProvider.services;
-            }
 
             const user = await usersCollection.findOne({ _id: new ObjectId(req.body.userId) });
             const filtered = getServicesByProvider(user.provider_access, "DHL");
@@ -82,33 +106,6 @@ client.connect().then(() => {
                 }
                 matrix.push({ service: filtered[i], message: "OK", data: result.pricing });
             }
-
-            function getPrice(priceList, kg, zone) {
-                if (kg <= 30) {
-                    const zonePrice = priceList.find(entry => entry.kg === kg);
-                    if (!zonePrice) {
-                        throw new Error(`No matching price found for the given kg ${kg}`);
-                    }
-                    const foundZonePrice = zonePrice.prices.find(price => price.zone === zone);
-                    return foundZonePrice ? foundZonePrice.price : `No matching price found for the given zone ${zone}`;
-                }
-                if (kg > 30) {
-                    const price30 = priceList.find(entry => entry.kg === 30);
-                    const extraPrice = priceList.find(entry => entry.kg === 'extra');
-                    const price30ForZone = price30.prices.find(price => price.zone === zone);
-                    const extraPriceForZone = extraPrice.prices.find(price => price.zone === zone);
-                    if (!extraPriceForZone || !price30ForZone) {
-                        throw new Error(`No matching price found for the given zone ${zone}`);
-                    }
-                    const extraWeight = kg - 30;
-                    const totalExtraPrice = (extraWeight * extraPriceForZone.price) + price30ForZone.price;
-                    return totalExtraPrice
-                }
-            }
-
-
-            const FFGroundTax = 16.8;
-            const FFAerialTax = 10.8;
 
             const finalArr = [];
             filteredData.forEach(cadaServicio => {
@@ -219,26 +216,58 @@ client.connect().then(() => {
             if (zone.error) {
                 throw new Error(zone.error);
             }
+            const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+            const userServices = getServicesByProvider(user.provider_access, "Estafeta");
+            if (typeof userServices === "string") {
+                throw new Error(`Error in fetching user services: ${userServices}`);
+            }
+            const rawFilteredServices = dataResponseESTAFETARaw?.FrecuenciaCotizadorResponse?.FrecuenciaCotizadorResult?.Respuesta?.TipoServicio?.TipoServicio.filter(item => userServices.includes(item.DescripcionServicio));
 
-            // Retrieve necessary data and perform other required operations...
-            // ...
+            const weightForCalcs = await controllerWeight.getWeightForCalcsFromEstafetaPackage({ 'alto': alto, 'ancho': ancho, 'largo': largo, 'peso': peso })
+            const calculoSeguro = parseFloat(Number(seguroMontoDeclarado) * 0.0125).toFixed(2)
 
-            // const dataBasedOnUserSheet = await controllerPrices.getPricesEstafetaBasedOnSheet(
-            //     dataResponseESTAFETA,
-            //     clientDataSheet,
-            //     weightForCalcs,
-            //     zone,
-            //     Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 0.108),
-            //     Number.parseFloat(ffTaxes?.FFTaxes?.land || 0.168),
-            //     costoReexpedicion !== 'No' ? costoReexpedicion : '0',
-            //     calculoSeguro
-            // );
+            let matrix = [];
+            for (let i = 0; i < userServices.length; i++) {
+                const query = { provider_id: "Estafeta", service: userServices[i], user_id: userId };
+                const result = await userPricingCollection.findOne(query);
+                if (!result) {
+                    throw new Error(`Error in fetching user matrix for service ${userServices[i]}`);
+                }
+                matrix.push({ service: userServices[i], message: "OK", data: result.pricing });
+            }
+            const finalData = []
+
+            rawFilteredServices.forEach(cadaServicio => {
+                const dataMatrix = matrix.find(entry => entry.service === cadaServicio["DescripcionServicio"]);
+                const requestPrice = getPrice(dataMatrix.data, weightForCalcs, zone);
+                let seguro = Number(calculoSeguro)
+                const costoReex = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.CostoReexpedicion
+                let reexpedicionSinIva = 0
+                if (costoReex !== "No") {
+                    reexpedicionSinIva = Number(costoReex) / 1.16
+                }
+                let subtotal = Number(requestPrice) + reexpedicionSinIva + Number(seguro)
+                let IVA = parseFloat(Number(subtotal) * 0.16).toFixed(2)
+                const newObj = {
+                    "TarifaBase": Number(requestPrice),
+                    "DescripcionServicio": cadaServicio.DescripcionServicio,
+                    "Peso": weightForCalcs,
+                    "CostoReexpedicion": parseFloat(reexpedicionSinIva).toFixed(2),
+                    "seguro": calculoSeguro,
+                    "Subtotal": parseFloat(subtotal).toFixed(2),
+                    "IVA": IVA,
+                    "CostoTotal": parseFloat(Number(subtotal) + Number(IVA)).toFixed(2)
+                }
+                finalData.push(newObj)
+            })
 
             res.status(200).json({
                 status: 'ok',
                 messages: 'OK',
-                data: dataResponseESTAFETARaw,
-                manejoEspecial: 'Envíos identificados como frágil, empaque irregular, envíos no transportables por bandas pueden generar un costo extra de  $63.67',
+                // raw: dataResponseESTAFETARaw,
+                // filtered: userServices,
+                data: finalData,
+                // matrix: matrix,
                 zone: zone
             });
         } catch (error) {
