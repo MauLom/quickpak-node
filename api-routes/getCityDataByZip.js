@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
     const peticion = await axios
         .get(urlServiceGoogle, {params:payload})
         .then((res)=> {return res})
-        .catch((error)=> {console.log("error:", error )})
+        .catch((error)=> {console.error("error:", error )})
     res.status(200).json({message:"Ok", data: peticion.data})
     // r = requests.get(url=urlServiceGoogle, headers=headers, params=payload)
     // response = jsonify(r.text)

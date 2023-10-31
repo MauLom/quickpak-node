@@ -9,85 +9,95 @@ const envVariables = config.getVariables()
 module.exports = {
 
     structureRequestToDHL: (timestamp, shipperCity, shipperZip, shipperCountryCode, recipientCity, recipientZip, recipientCountryCode, packages, insurance) => {
-        const data = {
-            "RateRequest": {
-                "ClientDetails": 1,
-                "RequestedShipment": {
-                    "GetDetailedRateBreakdown": "Y",
-                    "DropOffType": "REGULAR_PICKUP",
-                    "ShipTimestamp": timestamp,
-                    "UnitOfMeasurement": "SI",
-                    "Content": "DOCUMENTS",
-                    "PaymentInfo": "DDU",
-                    "Account": 980966404,
-                    "Ship": {
-                        "Shipper": {
-                            "City": shipperCity,
-                            "PostalCode": shipperZip,
-                            "CountryCode": shipperCountryCode
+        return {
+            RateRequest: {
+                ClientDetails: 1,
+                RequestedShipment: {
+                    GetDetailedRateBreakdown: "Y",
+                    DropOffType: "REGULAR_PICKUP",
+                    ShipTimestamp: timestamp,
+                    UnitOfMeasurement: "SI",
+                    Content: "DOCUMENTS",
+                    PaymentInfo: "DDU",
+                    Account: 980966404,
+                    Ship: {
+                        Shipper: {
+                            City: shipperCity,
+                            PostalCode: shipperZip,
+                            CountryCode: shipperCountryCode
                         },
-                        "Recipient": {
-                            "City": recipientCity,
-                            "PostalCode": recipientZip,
-                            "CountryCode": recipientCountryCode
+                        Recipient: {
+                            City: recipientCity,
+                            PostalCode: recipientZip,
+                            CountryCode: recipientCountryCode
                         }
                     },
-                    "Packages": {
-                        "RequestedPackages": packages
+                    Packages: {
+                        RequestedPackages: packages
                     },
-                    "DeclaredValue": 0,
-                    "SpecialServices": {
-                        "Service": [
+                    DeclaredValue: 0,
+                    SpecialServices: {
+                        Service: [
                             {
-                                "ServiceType": "II",
-                                "ServiceValue": insurance,
-                                "CurrencyCode": "MXN"
+                                ServiceType: "II",
+                                ServiceValue: insurance,
+                                CurrencyCode: "MXN"
                             }
                         ]
                     }
                 }
             }
-
-        }
-        return data
+        };
     },
 
     getRateAndStructure: async (dataToSend) => {
-        const resolvedRequest = await axios
-            .post(mainUrl + envVariables.enviroment + rateRequest, dataToSend,
-                { auth: { username: envVariables.DHLAccessUser, password: envVariables.DHLAccessPass } })
-            .then(res => {
-                dataResponse = res.data
-                var code = dataResponse.RateResponse.Provider[0]['@code']
-                if (code === 0) {
-                    return dataResponse.RateResponse.Provider[0].Notification[0]['Message']
-                } else {
-                    var serviceString = JSON.stringify(dataResponse?.RateResponse?.Provider[0].Service)
-                    var formattedServicesArr = []
-                    if (serviceString.charAt(0) === "{") {
-                        formattedServicesArr.push(dataResponse.RateResponse.Provider[0].Service)
-                    } else if (serviceString.charAt(0) == "[") {
-                        formattedServicesArr = dataResponse.RateResponse.Provider[0].Service
+        try {
+            const response = await axios.post(
+                `${mainUrl}${envVariables.enviroment}${rateRequest}`,
+                dataToSend,
+                {
+                    auth: {
+                        username: envVariables.DHLAccessUser,
+                        password: envVariables.DHLAccessPass
                     }
-                    formattedServicesArr.forEach(eachType => {
-                        if (eachType.hasOwnProperty('Charges') && eachType['Charges'].hasOwnProperty('Charge') && undefined != eachType['Charges']['Charge'].length) {
-                            eachType['Charges']['Charge'].forEach(cadaCargo => {
-                                if (cadaCargo.hasOwnProperty('ChargeBreakdown')) {
-                                    delete cadaCargo['ChargeBreakdown']
-                                }
-                            })
-                        }
-
-
-                    })
-                    return formattedServicesArr
                 }
-            })
-            .catch(error => {
-                console.error(error);
-                return error
-            });
-        return resolvedRequest;
+            );
+            const { RateResponse: { Provider } } = response.data;
+           
+            const code = Provider[0]['@code'];
+            const message = Provider[0]?.Notification[0]['Message']
+            if (code === 0 || message !== null) {
+                return { error: true, message: (Provider[0].Notification[0]['Message']) };
+            }
+
+            const { Service } = Provider[0];
+
+            if (Array.isArray(Service)) {
+                Service.forEach(service => {
+                    if (service?.Charges?.Charge?.length) {
+                        service?.Charges.Charge.forEach(charge => {
+                            if (charge.ChargeBreakdown) {
+                                delete charge.ChargeBreakdown;
+                            }
+                        });
+                    }
+                });
+
+                return Service;
+            }
+
+            if (Service?.Charges?.Charge?.length) {
+                Service.Charges.Charge.forEach(charge => {
+                    if (charge.ChargeBreakdown) {
+                        delete charge.ChargeBreakdown;
+                    }
+                });
+            }
+            return [Service];
+        } catch (error) {
+            console.error(error);
+            return error;
+        }
     },
 
     generateLabel: async (dataToSend) => {

@@ -15,7 +15,6 @@ router.post('/', (request, response) => {
         cpOrigin = request.body.cpOrigin
         cpDestino = request.body.cpDestino
         const zonedhl = getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
-        console.log("zone on URL:", zonedhl)
         response.status(200).json({ message: "ok", zone:zonedhl})
 
     }

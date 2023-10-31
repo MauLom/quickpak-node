@@ -7,11 +7,9 @@ module.exports = {
         const resolvedZone = await axios
             .get(urlRequestZone, { params: { AA01: originZip, BB01: destinyZip } })
             .then(res => {
-                console.log("res", res.data)
                 return res.data
             })
             .catch(error => {
-                console.log("error", error)
                 return error
             })
         return resolvedZone

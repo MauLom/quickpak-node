@@ -8,7 +8,6 @@
 //   var myobj = { name: "Company Inc", address: "Highway 37" };
 //   dbo.collection("customers").insertOne(myobj, function(err, res) {
 //     if (err) throw err;
-//     console.log("1 document inserted");
 //     db.close();
 //   });
 // });
@@ -86,7 +85,7 @@ module.exports = {
             const doc = data
             const result = await generatedLabels.insertOne(doc);
         } catch (error) {
-            console.log("Error:", error)
+            console.error("Error:", error)
         } finally {
             await client.close();
         }
@@ -101,7 +100,7 @@ module.exports = {
             const doc = data
             const result = await generatedLabels.insertOne(doc);
         } catch (error) {
-            console.log("Error:", error)
+            console.error("Error:", error)
         } finally {
             await client.close();
         }
@@ -121,7 +120,7 @@ module.exports = {
             })
         }
         catch (error) {
-            console.log("Error:", error)
+            console.error("Error:", error)
         } finally {
             await client.close()
         }
@@ -134,7 +133,6 @@ module.exports = {
             const directionsNotebooks = database.collection("directionsNotebooks");
             var idServices = data.idServices;
             var result = await directionsNotebooks.findOne({ idServices: idServices })
-            console.log('controler ' + result)
             return result;
         }
         catch (error) { console.error("findOneClient", error) }
@@ -147,11 +145,9 @@ module.exports = {
             const database = client.db(bdName);
             const directionsNotebooks = database.collection("directionsNotebooks");
             const doc = data
-            console.log("The dodc: ", doc)
             const result = await directionsNotebooks.insertOne(doc);
-            console.log(`A document was inserted with the _id: ${result.insertedId}`);
         } catch (error) {
-            console.log("Error:", error)
+            console.error("Error:", error)
         } finally {
             await client.close()
         }

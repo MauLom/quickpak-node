@@ -17,13 +17,11 @@ router.post('/', async (req, res) => {
         var descifrado=CryptoJS.AES.decrypt(idServices,'test');
         var textofinal=descifrado.toString(CryptoJS.enc.Utf8);
         const resuloffind = await controllerMongoData.findOneClient({ referencia: referencia, idServices: textofinal }) 
-        console.log("resultado en getUsers", resuloffind)
         if (resuloffind === null) {
             res.status(500).json({ status: "error", message: "No se pudo encontrar", data:false })
         }else{
             res.status(200).send({ message: 'se recibieron los datos', data: true })
         }
-        console.log('result',resuloffind)
     }
 })
 router.post('/register', async (req, res)=>{
@@ -41,7 +39,6 @@ router.post('/register', async (req, res)=>{
         referencia=req.body.referencia
         matriz=req.body.matriz
         const UserInserted= await controllerMongoData.saveGeneratedUsersonBD({idServices:idServices, referencia:referencia, matriz:matriz})
-        console.log('resultadosde insercion de cliente',UserInserted )
     }
 })
 router.post('/getDirection', async (req,res) =>{
@@ -58,12 +55,10 @@ router.post('/getDirection', async (req,res) =>{
         idServices = req.body.idServices
         var descifrado=CryptoJS.AES.decrypt(idServices,'test');
         var textofinal=descifrado.toString(CryptoJS.enc.Utf8);
-        console.log("textofinal", textofinal)
         const resuloffind = await controllerMongoData.findDirectionNotebook({  idServices: idServices, id: id }) 
         if (resuloffind === null) {
             res.status(500).json({ status: "error", message: "No se pudo encontrar", data:false })
         }else{
-            console.log("resuloffind", resuloffind)
             res.status(200).send({ message: 'se recibieron los datos', data: resuloffind.datos })
         }
     }

@@ -129,7 +129,6 @@ router.post('/', async (req, res) => {
         // const registerOnBd = await controllerFirebaseBD.addGeneratedLabelDHl(userId, { request: req.body, response: response.data })
         res.status(200).json(objResponse)
     } catch (e) {
-        // console.log("error:", e)
         res.status(200).json({ status: "error", messages: ("error: " + e) })
     }
 })
@@ -414,7 +413,6 @@ router.post('/estafeta', async (req, res) => {
 
 
             const registerOnBd = await controllerMongoData.saveGeneratedLabelDataOnBD({ userId: userId, request: req.body, response: response, type: "Estafeta", createdAt: Date.now() })
-            console.log("Saved on BD", registerOnBd)
         }
         res.status(200).json({ status: "ok", messages: "ok", data: response })
 

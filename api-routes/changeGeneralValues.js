@@ -13,7 +13,6 @@ router.post('/', async (req, res) => {
                 "aerial": req.body.aerial,
                 "land": req.body.land
         })
-        console.log("Saved values on BD ", registerOnBd)
         res.status(200).json({status:"ok", messages:"ok", data: registerOnBd})
     }
 
