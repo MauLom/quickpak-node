@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
-const axios = require('axios');
 var cors = require('cors')
+const loginLogic = require('./api-routesV2/login'); // Import your Passport login logic
 const getRatesRoute = require('./api-routes/getRates')
 const generateLabel = require('./api-routes/generateLabel')
 const getZoneDHL = require('./api-routes/getZoneDHL')
@@ -18,7 +18,7 @@ const usersV2 = require('./api-routesV2/users')
 const providers = require('./api-routesV2/providers')
 const userPricing = require('./api-routesV2/userPricing')
 const zips = require('./api-routesV2/zipCodes')
-const rates = require ('./api-routesV2/rates')
+const rates = require('./api-routesV2/rates')
 app.use(express.json())
 
 app.use(cors())
@@ -45,9 +45,11 @@ app.use('/users', users)
 app.use('/editservices', editServices)
 
 ///V2
-app.use('/api/users',usersV2 )
+app.use('/api/users', usersV2)
 app.use('/api/provider', providers)
 app.use('/api/userPricing', userPricing)
-app.use('/api/zip',zips)
+app.use('/api/zip', zips)
 app.use('/api/rates', rates)
+app.use('/api/login', loginLogic)
+
 module.exports = app;
