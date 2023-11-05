@@ -14,13 +14,21 @@ const url = process.env.MONGO_URI;
 const dbName = process.env.DB_NAME;
 const client = new MongoClient(url, { useUnifiedTopology: true });
 
-function numberToZoneString(number) {
+function numberToZoneString(number, provider) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     if (number < 1 || number > 8) {
         throw new Error('No se encontro Zona con los CP proporcionados');
     }
     const zoneLetter = alphabet.charAt(number - 1);
-    return ` Zona ${zoneLetter}`;
+    let zoneString = ""
+    switch(provider){
+        case "DHL":
+            zoneString = ` Zona ${zoneLetter}`
+            break;
+        case "Estafeta":
+            zoneString= `Zona ${number}`
+    }
+    return zoneString;
 }
 
 function getServicesByProvider(arr, provider) {
@@ -78,7 +86,7 @@ client.connect().then(() => {
             }
 
             const zoneAsNumber = getzoneDHL.getZoneRequest(req.body.shipperZip, req.body.recipientZip);
-            const zonedhl = numberToZoneString(zoneAsNumber);
+            const zonedhl = numberToZoneString(zoneAsNumber, "DHL");
 
             const dataToDHL = controllerDHLServices.structureRequestToDHL(req.body.timestamp, req.body.shipperCity, req.body.shipperZip, req.body.shipperCountryCode, req.body.recipientCity, req.body.recipientZip, req.body.recipientCountryCode, req.body.packages, req.body.insurance);
             const dataResponseDHL = await controllerDHLServices.getRateAndStructure(dataToDHL);
@@ -211,7 +219,7 @@ client.connect().then(() => {
             }
 
             const zoneAsNumber = getzoneDHL.getZoneRequest(req.body.shipperZip, req.body.recipientZip);
-            const zone = numberToZoneString(zoneAsNumber);
+            const zone = numberToZoneString(zoneAsNumber, "Estafeta");
 
             if (zone.error) {
                 throw new Error(zone.error);
