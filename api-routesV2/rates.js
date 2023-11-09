@@ -217,10 +217,8 @@ client.connect().then(() => {
             if (dataResponseESTAFETA.Error !== '000') {
                 throw new Error(dataResponseESTAFETA.MensajeError);
             }
-
-            const zoneAsNumber = getzoneDHL.getZoneRequest(req.body.shipperZip, req.body.recipientZip);
+            const zoneAsNumber = getzoneDHL.getZoneRequest(req.body.originZip, req.body.destinyZip);
             const zone = numberToZoneString(zoneAsNumber, "Estafeta");
-
             if (zone.error) {
                 throw new Error(zone.error);
             }
@@ -230,7 +228,6 @@ client.connect().then(() => {
                 throw new Error(`Error in fetching user services: ${userServices}`);
             }
             const rawFilteredServices = dataResponseESTAFETARaw?.FrecuenciaCotizadorResponse?.FrecuenciaCotizadorResult?.Respuesta?.TipoServicio?.TipoServicio.filter(item => userServices.includes(item.DescripcionServicio));
-
             const weightForCalcs = await controllerWeight.getWeightForCalcsFromEstafetaPackage({ 'alto': alto, 'ancho': ancho, 'largo': largo, 'peso': peso })
             const calculoSeguro = parseFloat(Number(seguroMontoDeclarado) * 0.0125).toFixed(2)
 
