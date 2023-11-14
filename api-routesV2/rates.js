@@ -21,12 +21,12 @@ function numberToZoneString(number, provider) {
     }
     const zoneLetter = alphabet.charAt(number - 1);
     let zoneString = ""
-    switch(provider){
+    switch (provider) {
         case "DHL":
             zoneString = ` Zona ${zoneLetter}`
             break;
         case "Estafeta":
-            zoneString= `Zona ${number}`
+            zoneString = `Zona ${number}`
     }
     return zoneString;
 }
@@ -90,6 +90,7 @@ client.connect().then(() => {
 
             const dataToDHL = controllerDHLServices.structureRequestToDHL(req.body.timestamp, req.body.shipperCity, req.body.shipperZip, req.body.shipperCountryCode, req.body.recipientCity, req.body.recipientZip, req.body.recipientCountryCode, req.body.packages, req.body.insurance);
             const dataResponseDHL = await controllerDHLServices.getRateAndStructure(dataToDHL);
+            if (dataResponseDHL?.error) { throw new Error(dataResponseDHL?.message) }
 
             const user = await usersCollection.findOne({ _id: new ObjectId(req.body.userId) });
             const filtered = getServicesByProvider(user.provider_access, "DHL");
@@ -119,27 +120,30 @@ client.connect().then(() => {
             filteredData.forEach(cadaServicio => {
                 const dataMatrix = matrix.find(entry => entry.service === cadaServicio["@type"]);
                 const requestPrice = getPrice(dataMatrix.data, weightForCalcs, zonedhl);
+
                 if (cadaServicio['Charges']['Charge'].length > 2) {
                     let valoresParaSumarFF = 0;
                     cadaServicio['Charges']['Charge'].forEach(cadaCargo => {
                         if (["YY", "OO", "YB", "II", "YE"].includes(cadaCargo.ChargeCode)) {
                             cadaCargo.ChargeAmount = Number(parseFloat(Number(cadaCargo.ChargeAmount) / 1.16).toFixed(2));
                             valoresParaSumarFF += cadaCargo.ChargeAmount;
+                           
                         } else if (cadaCargo.ChargeCode === "FF") {
                             valoresParaSumarFF += Number(parseFloat(Number(requestPrice)).toFixed(2));
                             const multiplicadorCombus = cadaServicio['@type'] === "G" ? FFGroundTax : FFAerialTax;
                             const porcDepured = Number.parseFloat(multiplicadorCombus / 100).toFixed(2);
                             const resultMulti = valoresParaSumarFF * porcDepured;
                             cadaCargo.ChargeAmount = Number(parseFloat(resultMulti).toFixed(2));
+                        } else {
+                            cadaCargo.ChargeAmount = Number(parseFloat(requestPrice).toFixed(2));
                         }
                     });
-                } else {
+                } else {                  
                     const eleccionTipoFF = cadaServicio['@type'] === "G" ? FFGroundTax : FFAerialTax;
                     const valorDividido = parseFloat(Number(requestPrice) * eleccionTipoFF / 100).toFixed(2);
                     cadaServicio['Charges']['Charge'][1].ChargeAmount = Number(valorDividido);
                 }
                 const subTotalCharge = { 'ChargeType': 'SubTotal', 'ChargeAmount': 0 }
-
                 cadaServicio['Charges']['Charge'].forEach(cadaSubCargo => {
                     subTotalCharge.ChargeAmount += Number(cadaSubCargo['ChargeAmount']);
                 });
@@ -159,7 +163,6 @@ client.connect().then(() => {
                 zone: zonedhl,
                 data: finalArr
             };
-
             res.status(200).json(response);
         } catch (error) {
             res.status(500).json({ message: `Error occurred during processing: ${error.message}` });
