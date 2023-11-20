@@ -135,6 +135,7 @@ client.connect().then(() => {
                             const resultMulti = valoresParaSumarFF * porcDepured;
                             cadaCargo.ChargeAmount = Number(parseFloat(resultMulti).toFixed(2));
                         } else {
+                            valoresParaSumarFF += Number(parseFloat(Number(requestPrice)).toFixed(2));
                             cadaCargo.ChargeAmount = Number(parseFloat(requestPrice).toFixed(2));
                         }
                     });
