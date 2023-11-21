@@ -29,7 +29,9 @@ router.post('/', async (req, res) => {
         if (userId === "5MAv%2mUE%3KutBXno5E") {
             customerReference = "Guitar Gear"
         } else if (userId === "enc0UiLq0oNXm1GTFHB8") {
-            customerReference = "SRS Express"
+          // customerReference = "SRS Express"
+          customerReference = "2C-V00"
+       
         }else if (userId === "ui0125skguelosfjg980") {
           customerReference = "REDBOX"
         } else {
