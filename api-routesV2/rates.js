@@ -131,17 +131,17 @@ client.connect().then(() => {
                         } else if (cadaCargo.ChargeCode === "FF") {
                             valoresParaSumarFF += Number(parseFloat(Number(requestPrice)).toFixed(2));
                             const multiplicadorCombus = cadaServicio['@type'] === "G" ? FFGroundTax : FFAerialTax;
-                            const porcDepured = Number.parseFloat(multiplicadorCombus / 100).toFixed(2);
+                            const porcDepured = Number.parseFloat(multiplicadorCombus / 100).toFixed(4);
                             const resultMulti = valoresParaSumarFF * porcDepured;
-                            cadaCargo.ChargeAmount = Number(parseFloat(resultMulti).toFixed(2));
+                            cadaCargo.ChargeAmount = Number(parseFloat(resultMulti).toFixed(4));
                         } else {
-                            valoresParaSumarFF += Number(parseFloat(Number(requestPrice)).toFixed(2));
                             cadaCargo.ChargeAmount = Number(parseFloat(requestPrice).toFixed(2));
                         }
                     });
                 } else {                  
                     const eleccionTipoFF = cadaServicio['@type'] === "G" ? FFGroundTax : FFAerialTax;
                     const valorDividido = parseFloat(Number(requestPrice) * eleccionTipoFF / 100).toFixed(2);
+                    console.log("valorDividido", valorDividido)
                     cadaServicio['Charges']['Charge'][1].ChargeAmount = Number(valorDividido);
                 }
                 const subTotalCharge = { 'ChargeType': 'SubTotal', 'ChargeAmount': 0 }
