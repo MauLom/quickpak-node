@@ -90,6 +90,21 @@ module.exports = {
             await client.close();
         }
     },
+    saveGeneratedLabelDataOnBDV2: async (data) => {
+        const client = new MongoClient(uri);
+
+        try {
+            const database = client.db(bdName);
+            const generatedLabels = database.collection("Labels");
+            // create a document to insert
+            const doc = data
+            const result = await generatedLabels.insertOne(doc);
+        } catch (error) {
+            console.error("Error:", error)
+        } finally {
+            await client.close();
+        }
+    },
     saveGeneratedUsersonBD: async (data) => {
         const client = new MongoClient(uri);
 

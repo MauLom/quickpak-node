@@ -17,6 +17,7 @@ const editServices = require('./api-routes/editServices')
 const usersV2 = require('./api-routesV2/users')
 const providers = require('./api-routesV2/providers')
 const userPricing = require('./api-routesV2/userPricing')
+const labelsV2 = require("./api-routesV2/labels")
 const zips = require('./api-routesV2/zipCodes')
 const rates = require('./api-routesV2/rates')
 app.use(express.json())
@@ -51,5 +52,7 @@ app.use('/api/userPricing', userPricing)
 app.use('/api/zip', zips)
 app.use('/api/rates', rates)
 app.use('/api/login', loginLogic)
+app.use('/api/generateLabel', labelsV2)
+
 
 module.exports = app;
