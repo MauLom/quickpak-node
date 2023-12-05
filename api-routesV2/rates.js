@@ -49,8 +49,14 @@ function getPrice(priceList, kg, zone) {
         return foundZonePrice ? foundZonePrice.price : `No matching price found for the given zone ${zone}`;
     }
     if (kg > 30) {
+        console.log("llega a superior a 30")
         const price30 = priceList.find(entry => entry.kg === 30);
-        const extraPrice = priceList.find(entry => entry.kg === 'extra');
+
+        let extraPrice = priceList.find(entry => entry.kg === 'extra');
+        console.log("extraPrice", extraPrice.prices[0].price)
+        if (extraPrice.prices[0].price === 0) {
+            extraPrice = priceList.find(entry => entry.kg === 31)
+        }
         const price30ForZone = price30.prices.find(price => price.zone === zone);
         const extraPriceForZone = extraPrice.prices.find(price => price.zone === zone);
         if (!extraPriceForZone || !price30ForZone) {
@@ -58,6 +64,7 @@ function getPrice(priceList, kg, zone) {
         }
         const extraWeight = kg - 30;
         const totalExtraPrice = (extraWeight * extraPriceForZone.price) + price30ForZone.price;
+
         return totalExtraPrice
     }
 }
@@ -120,6 +127,7 @@ client.connect().then(() => {
             filteredData.forEach(cadaServicio => {
                 const dataMatrix = matrix.find(entry => entry.service === cadaServicio["@type"]);
                 const requestPrice = getPrice(dataMatrix.data, weightForCalcs, zonedhl);
+                console.log("requestPrice", requestPrice)
 
                 if (cadaServicio['Charges']['Charge'].length > 2) {
                     let valoresParaSumarFF = 0;
@@ -127,7 +135,7 @@ client.connect().then(() => {
                         if (["YY", "OO", "YB", "II", "YE"].includes(cadaCargo.ChargeCode)) {
                             cadaCargo.ChargeAmount = Number(parseFloat(Number(cadaCargo.ChargeAmount) / 1.16).toFixed(2));
                             valoresParaSumarFF += cadaCargo.ChargeAmount;
-                           
+
                         } else if (cadaCargo.ChargeCode === "FF") {
                             valoresParaSumarFF += Number(parseFloat(Number(requestPrice)).toFixed(2));
                             const multiplicadorCombus = cadaServicio['@type'] === "G" ? FFGroundTax : FFAerialTax;
@@ -138,7 +146,7 @@ client.connect().then(() => {
                             cadaCargo.ChargeAmount = Number(parseFloat(requestPrice).toFixed(2));
                         }
                     });
-                } else {                  
+                } else {
                     const eleccionTipoFF = cadaServicio['@type'] === "G" ? FFGroundTax : FFAerialTax;
                     const valorDividido = parseFloat(Number(requestPrice) * eleccionTipoFF / 100).toFixed(2);
                     console.log("valorDividido", valorDividido)
