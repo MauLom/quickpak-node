@@ -4,10 +4,15 @@ const controllerDHLServices = require('../services/connectionDHLServices')
 const controllerMongoData = require('../models/controllerMongoBD')
 const controllerEstafetaServices = require('../services/connectionESTAFETAServices')
 const controllerFirebaseBD = require('../models/controllerFirebaseBD');
-
 const config = require('../config')
-
 const envVariables = config.getVariables()
+
+const { MongoClient, ObjectId } = require("mongodb");
+// Connection URL and database name
+const url = process.env.MONGO_URI;
+const dbName = process.env.DB_NAME;
+const client = new MongoClient(url, { useUnifiedTopology: true });
+
 
 Date.prototype.addDays = function (days) {
     var date = new Date(this.valueOf());
@@ -17,6 +22,22 @@ Date.prototype.addDays = function (days) {
 function padTo2Digits(num) {
     return num.toString().padStart(2, '0');
 }
+
+router.get('/', async (req, res) => {
+    const { origin, userId } = req.query;
+    try {
+        await client.connect();
+        const db = client.db("Quickpak_logistic");
+        const labelsCollections = db.collection(origin);
+        const data = await labelsCollections.find().toArray();
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+    } finally {
+        await client.close();
+    }
+});
+
 
 router.post('/DHL', async (req, res) => {
     try {
@@ -29,14 +50,16 @@ router.post('/DHL', async (req, res) => {
             service, date, desc
         } = req.body;
 
-        const customerReferenceMap = {
-            "5MAv%2mUE%3KutBXno5E": "Guitar Gear",
-            "enc0UiLq0oNXm1GTFHB8": "2C-V00",
-            "ui0125skguelosfjg980": "REDBOX",
-            default: "Quickpak"
-        };
+        await client.connect();
+        const db = client.db(dbName);
+        const usersCollection = db.collection("users");
+        const user = await usersCollection.findOne({ _id: new ObjectId(userId) })
+        const customerReference = user.string_reference || "Quikpack"
 
-        const customerReference = customerReferenceMap[userId] || customerReferenceMap.default;
+        let newArrWithPackagess = packages
+        newArrWithPackagess.forEach(cadaPaquete => {
+            cadaPaquete['CustomerReferences'] = customerReference
+        })
 
         const baseDataAddress = (streets, streets2, streets3, city, zip) => ({
             "StreetLines": streets,
@@ -94,15 +117,15 @@ router.post('/DHL', async (req, res) => {
                         }
                     },
                     "Packages": {
-                        "RequestedPackages": packages
+                        "RequestedPackages": newArrWithPackagess
                     }
                 }
             }
         };
 
-        if (packages[0]?.InsuredValue) {
+        if (newArrWithPackagess[0]?.InsuredValue) {
             dataObj.ShipmentRequest.RequestedShipment.ShipmentInfo['SpecialServices'] = [
-                { "Service": { "ServiceType": "II", "ServiceValue": packages[0].InsuredValue, "CurrencyCode": "MXN" } }
+                { "Service": { "ServiceType": "II", "ServiceValue": newArrWithPackagess[0].InsuredValue, "CurrencyCode": "MXN" } }
             ];
         }
 
@@ -129,6 +152,8 @@ router.post('/DHL', async (req, res) => {
         res.status(200).json(objResponse);
     } catch (e) {
         res.status(500).json({ status: "error", messages: `Error: ${e.message}` });
+    } finally {
+        await client.close();
     }
 });
 
@@ -154,13 +179,11 @@ router.post('/estafeta', async (req, res) => {
         descripcionPaquete, seguro, additionalInfo, content
     } = req.body;
 
-    let customerReference = "test";
-
-    if (userId === "5MAv%2mUE%3KutBXno5E") {
-        customerReference = "Guitar Gear";
-    } else if (userId === "enc0UiLq0oNXm1GTFHB8") {
-        customerReference = "SRS Express";
-    }
+    await client.connect();
+    const db = client.db(dbName);
+    const usersCollection = db.collection("users");
+    const user = usersCollection.findOne({ _id: new ObjectId(userId) })
+    const customerReference = await user.string_reference || "Quikpack"
 
     let seguroMontoDeclarado = 0;
     let llevaSeguro = false;
@@ -374,15 +397,13 @@ router.post('/estafeta', async (req, res) => {
     }
 
     const response = await controllerEstafetaServices.generateLabel(dataObj);
-
     if (response?.data !== null) {
-
-        const objToBd ={
-            client:userId,
+        const objToBd = {
+            client: userId,
             createdAt: Date.now(),
-            parcel:"Estafeta",
+            parcel: "Estafeta",
             labelId: response?.labelPetitionResult?.elements[0]?.waybill || "error",
-            pieces:[{weight:peso, dimensions: `${alto}x${ancho}x${largo}`}],
+            pieces: [{ weight: peso, dimensions: `${alto}x${ancho}x${largo}` }],
         }
         const registerOnBd = await controllerMongoData.saveGeneratedLabelDataOnBDV2({
             userId,

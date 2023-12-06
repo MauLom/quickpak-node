@@ -113,15 +113,15 @@ router.post('/', async (req, res) => {
                         }
                     },
                     "Packages": {
-                        "RequestedPackages": req.body.packages
+                        "RequestedPackages": newArrWithPackagess
                     }
                 }
             }
         }
 
-        if(req.body.packages[0].InsuredValue){
+        if(newArrWithPackagess[0].InsuredValue){
             dataObj.ShipmentRequest.RequestedShipment.ShipmentInfo['SpecialServices'] = [
-                { "Service": { "ServiceType": "II", "ServiceValue": req.body.packages[0].InsuredValue, "CurrencyCode": "MXN" } }
+                { "Service": { "ServiceType": "II", "ServiceValue": newArrWithPackagess[0].InsuredValue, "CurrencyCode": "MXN" } }
             ]
         }
         const response = await controllerDHLServices.generateLabel(dataObj)
