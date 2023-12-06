@@ -182,8 +182,8 @@ router.post('/estafeta', async (req, res) => {
     await client.connect();
     const db = client.db(dbName);
     const usersCollection = db.collection("users");
-    const user = usersCollection.findOne({ _id: new ObjectId(userId) })
-    const customerReference = await user.string_reference || "Quikpack"
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) })
+    const customerReference =  user.string_reference || "Quikpack"
 
     let seguroMontoDeclarado = 0;
     let llevaSeguro = false;
