@@ -15,6 +15,7 @@ module.exports = {
                 RequestedShipment: {
                     GetDetailedRateBreakdown: "Y",
                     DropOffType: "REGULAR_PICKUP",
+                    NextBusinessDay:"Y",
                     ShipTimestamp: timestamp,
                     UnitOfMeasurement: "SI",
                     Content: "DOCUMENTS",
@@ -63,7 +64,7 @@ module.exports = {
                 }
             );
             const { RateResponse: { Provider } } = response.data;
-           
+
             const code = Provider[0]['@code'];
             const message = Provider[0]?.Notification[0]['Message']
             if (code === 0 || message !== null) {
