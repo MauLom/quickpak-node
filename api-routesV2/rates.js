@@ -127,7 +127,6 @@ client.connect().then(() => {
             filteredData.forEach(cadaServicio => {
                 const dataMatrix = matrix.find(entry => entry.service === cadaServicio["@type"]);
                 const requestPrice = getPrice(dataMatrix.data, weightForCalcs, zonedhl);
-                console.log("requestPrice", requestPrice)
 
                 if (cadaServicio['Charges']['Charge'].length > 2) {
                     let valoresParaSumarFF = 0;
@@ -224,6 +223,10 @@ client.connect().then(() => {
             }
 
             const dataResponseESTAFETARaw = await controllerEstafetaServices.getRates(dataRequest);
+
+            console.log("DiasEntrega", dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.DiasEntrega)
+            console.log("TipoServicio", dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.TipoServicio.TipoServicio)
+
             let dataResponseESTAFETA = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta;
 
             if (dataResponseESTAFETA.Error !== '000') {
@@ -266,6 +269,7 @@ client.connect().then(() => {
                 let subtotal = Number(requestPrice) + reexpedicionSinIva + Number(seguro)
                 let IVA = parseFloat(Number(subtotal) * 0.16).toFixed(2)
                 const newObj = {
+                    "DiasEntrega": dataResponseESTAFETARaw?.FrecuenciaCotizadorResponse?.FrecuenciaCotizadorResult?.Respuesta?.DiasEntrega,
                     "TarifaBase": Number(requestPrice),
                     "DescripcionServicio": cadaServicio.DescripcionServicio,
                     "Peso": weightForCalcs,
