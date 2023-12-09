@@ -142,7 +142,10 @@ client.connect().then(() => {
                             const porcDepured = Number.parseFloat(multiplicadorCombus / 100).toFixed(4);
                             const resultMulti = valoresParaSumarFF * porcDepured;
                             cadaCargo.ChargeAmount = Number(parseFloat(resultMulti).toFixed(4));
-                        } else {
+                        } else if (["YE", "II"].includes(cadaCargo.ChargeCode)) {
+                            cadaCargo.ChargeAmount = Number(parseFloat(Number(cadaCargo.ChargeAmount) / 1.16).toFixed(2));
+                        }
+                        else {
                             cadaCargo.ChargeAmount = Number(parseFloat(requestPrice).toFixed(2));
                         }
                     });
