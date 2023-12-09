@@ -131,7 +131,7 @@ client.connect().then(() => {
                 if (cadaServicio['Charges']['Charge'].length > 2) {
                     let valoresParaSumarFF = 0;
                     cadaServicio['Charges']['Charge'].forEach(cadaCargo => {
-                        if (["YY", "OO", "YB", "II", "YE"].includes(cadaCargo.ChargeCode)) {
+                        if (["YY", "OO", "II", "YE"].includes(cadaCargo.ChargeCode)) {
                             cadaCargo.ChargeAmount = Number(parseFloat(Number(cadaCargo.ChargeAmount) / 1.16).toFixed(2));
                             valoresParaSumarFF += cadaCargo.ChargeAmount;
 
@@ -223,10 +223,6 @@ client.connect().then(() => {
             }
 
             const dataResponseESTAFETARaw = await controllerEstafetaServices.getRates(dataRequest);
-
-            console.log("DiasEntrega", dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.DiasEntrega)
-            console.log("TipoServicio", dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.TipoServicio.TipoServicio)
-
             let dataResponseESTAFETA = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta;
 
             if (dataResponseESTAFETA.Error !== '000') {
