@@ -130,8 +130,9 @@ client.connect().then(() => {
 
                 if (cadaServicio['Charges']['Charge'].length > 2) {
                     let valoresParaSumarFF = 0;
+                    console.log("cadaServicio['Charges']['Charge']", cadaServicio['Charges']['Charge'])
                     cadaServicio['Charges']['Charge'].forEach(cadaCargo => {
-                        if (["YY", "OO", "II", "YE"].includes(cadaCargo.ChargeCode)) {
+                        if (["YY", "OO", "YB"].includes(cadaCargo.ChargeCode)) {
                             cadaCargo.ChargeAmount = Number(parseFloat(Number(cadaCargo.ChargeAmount) / 1.16).toFixed(2));
                             valoresParaSumarFF += cadaCargo.ChargeAmount;
 
