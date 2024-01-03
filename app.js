@@ -35,7 +35,7 @@ app.get('/sayHello', (req, res) => {
 
 
 app.use('/getRates', getRatesRoute)
-app.use('/generateLabel', generateLabel)
+// app.use('/generateLabel', generateLabel)
 app.use('/getZoneDHL', getZoneDHL)
 app.use('/labelsData', labelsData)
 app.use('/usersData', usersData)
