@@ -135,7 +135,7 @@ router.post('/', async (req, res) => {
     }
 })
 
-router.post('/estafeta', async (req, res) => {
+router.post('/estafetaDeprecated', async (req, res) => {
     var alto = ""
     var ancho = ""
     var esPaquete = ""
