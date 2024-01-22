@@ -143,7 +143,7 @@ router.post('/estafeta', async (req, res) => {
             clientDataSheet,
             weightForCalcs,
             zone,
-            Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 0.108),
+            Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 0.0972),
             Number.parseFloat(ffTaxes?.FFTaxes?.land || 0.169),
             costoReexpedicion !== "No" ? costoReexpedicion : "0",
             calculoSeguro
