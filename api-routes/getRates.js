@@ -69,7 +69,8 @@ router.post('/', async (req, res) => {
             return res.status(500).json({ status: "Error", messages: clientDataSheet.message });
         }
 
-        const ffTaxes = await controllerMongoBD.findGeneralValues();
+        //const ffTaxes = await controllerMongoBD.findGeneralValues();
+        const ffTaxes = null
         const validServicesDHL = ["G", "N"]; // Your valid services for DHL
 
         const zonedhl = getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
@@ -130,7 +131,8 @@ router.post('/estafeta', async (req, res) => {
 
         const clientDataSheet = await controllerUserData.getDataEstafetaSheetById(userId);
         const weightForCalcs = await controllerWeight.getWeightForCalcsFromEstafetaPackage({ alto, ancho, largo, peso });
-        const ffTaxes = await controllerMongoBD.findGeneralValues();
+        // const ffTaxes = await controllerMongoBD.findGeneralValues();
+        const ffTaxes = null
         const costoReexpedicion = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.CostoReexpedicion;
         const DiasEntrega = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.DiasEntrega;
         const txtManejoEspecial = "Envíos identificados como frágil, empaque irregular, envíos no transportables por bandas pueden generar un costo extra de  $63.67";
