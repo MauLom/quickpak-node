@@ -49,11 +49,9 @@ function getPrice(priceList, kg, zone) {
         return foundZonePrice ? foundZonePrice.price : `No matching price found for the given zone ${zone}`;
     }
     if (kg > 30) {
-        console.log("llega a superior a 30")
         const price30 = priceList.find(entry => entry.kg === 30);
 
         let extraPrice = priceList.find(entry => entry.kg === 'extra');
-        console.log("extraPrice", extraPrice.prices[0].price)
         if (extraPrice.prices[0].price === 0) {
             extraPrice = priceList.find(entry => entry.kg === 31)
         }
@@ -79,7 +77,7 @@ client.connect().then(() => {
     const userPricingCollection = db.collection("user_pricing")
 
     const FFGroundTax = 16.9;
-    const FFAerialTax = 10.8;
+    const FFAerialTax = 9.72;
 
     router.post('/DHL', async (req, res) => {
         try {
@@ -130,7 +128,6 @@ client.connect().then(() => {
 
                 if (cadaServicio['Charges']['Charge'].length > 2) {
                     let valoresParaSumarFF = 0;
-                    console.log("cadaServicio['Charges']['Charge']", cadaServicio['Charges']['Charge'])
                     cadaServicio['Charges']['Charge'].forEach(cadaCargo => {
                         if (["YY", "OO", "YB"].includes(cadaCargo.ChargeCode)) {
                             cadaCargo.ChargeAmount = Number(parseFloat(Number(cadaCargo.ChargeAmount) / 1.16).toFixed(2));
@@ -152,7 +149,6 @@ client.connect().then(() => {
                 } else {
                     const eleccionTipoFF = cadaServicio['@type'] === "G" ? FFGroundTax : FFAerialTax;
                     const valorDividido = parseFloat(Number(requestPrice) * eleccionTipoFF / 100).toFixed(2);
-                    console.log("valorDividido", valorDividido)
                     cadaServicio['Charges']['Charge'][1].ChargeAmount = Number(valorDividido);
                 }
                 const subTotalCharge = { 'ChargeType': 'SubTotal', 'ChargeAmount': 0 }
