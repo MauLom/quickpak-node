@@ -224,7 +224,7 @@ client.connect().then(() => {
 
             const dataResponseESTAFETARaw = await controllerEstafetaServices.getRates(dataRequest);
             let dataResponseESTAFETA = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta;
-
+        
             if (dataResponseESTAFETA.Error !== '000') {
                 throw new Error(dataResponseESTAFETA.MensajeError);
             }
@@ -238,7 +238,8 @@ client.connect().then(() => {
             if (typeof userServices === "string") {
                 throw new Error(`Error in fetching user services: ${userServices}`);
             }
-            const rawFilteredServices = dataResponseESTAFETARaw?.FrecuenciaCotizadorResponse?.FrecuenciaCotizadorResult?.Respuesta?.TipoServicio?.TipoServicio.filter(item => userServices.includes(item.DescripcionServicio));
+            const rawFilteredServices = dataResponseESTAFETARaw?.FrecuenciaCotizadorResponse?.FrecuenciaCotizadorResult?.Respuesta?.TipoServicio?.TipoServicio.filter(item => userServices.map(service => service.toLowerCase()).includes(item.DescripcionServicio.toLowerCase()));
+
             const weightForCalcs = await controllerWeight.getWeightForCalcsFromEstafetaPackage({ 'alto': alto, 'ancho': ancho, 'largo': largo, 'peso': peso })
             const calculoSeguro = parseFloat(Number(seguroMontoDeclarado) * 0.0125).toFixed(2)
 
@@ -254,7 +255,9 @@ client.connect().then(() => {
             const finalData = []
 
             rawFilteredServices.forEach(cadaServicio => {
-                const dataMatrix = matrix.find(entry => entry.service === cadaServicio["DescripcionServicio"]);
+                const dataMatrix = matrix.find(entry => 
+                    entry.service.toLowerCase() === cadaServicio["DescripcionServicio"].toLowerCase()
+                  );
                 const requestPrice = getPrice(dataMatrix.data, weightForCalcs, zone);
                 let seguro = Number(calculoSeguro)
                 const costoReex = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.CostoReexpedicion
