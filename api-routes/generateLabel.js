@@ -183,6 +183,8 @@ router.post('/estafetaDeprecated', async (req, res) => {
             customerReference = "Guitar Gear"
         } else if (userId === "enc0UiLq0oNXm1GTFHB8") {
             customerReference = "SRS Express"
+        } else {
+          customerReference = "QP Tests"
         }
         let additionalInfo = ""
         let content = ""
