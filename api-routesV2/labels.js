@@ -54,7 +54,7 @@ router.post('/DHL', async (req, res) => {
         const db = client.db(dbName);
         const usersCollection = db.collection("users");
         const user = await usersCollection.findOne({ _id: new ObjectId(userId) })
-        const customerReference = user.string_reference || "Quikpack"
+        const customerReference = user?.string_reference || "Quikpack"
 
         let newArrWithPackagess = packages
         newArrWithPackagess.forEach(cadaPaquete => {
@@ -183,7 +183,8 @@ router.post('/estafeta', async (req, res) => {
     const db = client.db(dbName);
     const usersCollection = db.collection("users");
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) })
-    const customerReference =  user.string_reference || "Quikpack"
+
+    const customerReference =  user?.string_reference || "Quikpack"
 
     let seguroMontoDeclarado = 0;
     let llevaSeguro = false;
