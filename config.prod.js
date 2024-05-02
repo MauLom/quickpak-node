@@ -4,10 +4,10 @@ const enviroment = "gbl/"
 const FirebaseConfigOBJ = process.env.FBCOBJ
 
 const EstftScrt = "0385796e802741a9bd0c171e8fbbcb6b"
-//const EstftScrt = "4b087ce15b0d49b58020f86b51c9ee0b"
+const EstftPREVScrt = "4b087ce15b0d49b58020f86b51c9ee0b"
 
 const EstftApiKey = "l7cd90d9b1fa31487c8813704a6fcfd6e9"
-//const EstftApiKey = "l74266177fff204854ac3b891a992353f2"
+const EstftApiPREVKey = "l74266177fff204854ac3b891a992353f2"
 const noClient = "5899980"
 const OrgVentas = "611"
 const URLtoken = "https://api.estafeta.com/auth/oauth/v2/token"
@@ -35,7 +35,11 @@ module.exports = {
             "fixURLtoken": fixURLtoken,
             "fixEstftApiKey": fixEstftApiKey,
             "fixEstftScrt": fixEstftScrt,
-            "fixURLBase": fixURLBase
+            "fixURLBase": fixURLBase,
+            
+
+            "EstftPREVScrt": EstftPREVScrt,
+            "EstftApiPREVKey": EstftApiPREVKey
         }
         return secretsVariable;
     }

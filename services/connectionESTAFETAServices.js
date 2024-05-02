@@ -18,6 +18,14 @@ const getClientCredentialsQA = oauth.client(axios.create(), {
     scope: 'execute',
 });
 
+const getAccount1Credentials = oauth.client(axios.create(), {
+    url: envVariables.fixURLtoken,
+    grant_type: 'client_credentials',
+    client_id: envVariables.EstftApiPREVKey,
+    client_secret: envVariables.EstftPREVScrt,
+    scope: 'execute',
+});
+
 const waybills = envVariables.URLBase+"wayBills?outputType=FILE_PDF&outputGroup=REQUEST&responseMode=SYNC_INLINE&printingTemplate=NORMAL_TIPO7_ZEBRAORI"
 const rateRequest = "https://wscotizadorqa.estafeta.com/v2/FrecuenciaCotizadorOP/frecuenciacotizador"
 
@@ -51,7 +59,7 @@ module.exports = {
         return await resolvedRequest
     },
     getRates: async (dataToSend) => {
-        const bearerToken = await getClientCredentialsQA()
+        const bearerToken = await getAccount1Credentials()
         const bearerStringWithToken = "Bearer " + bearerToken.access_token
         const config = {
             headers: {
