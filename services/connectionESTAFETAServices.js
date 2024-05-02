@@ -21,8 +21,8 @@ const getClientCredentialsQA = oauth.client(axios.create(), {
 const getAccount1Credentials = oauth.client(axios.create(), {
     url: envVariables.fixURLtoken,
     grant_type: 'client_credentials',
-    client_id: envVariables.EstftApiPREVKey,
-    client_secret: envVariables.EstftPREVScrt,
+    client_id: envVariables.estftApiPREVKey,
+    client_secret: envVariables.estftPREVScrt,
     scope: 'execute',
 });
 
@@ -63,7 +63,7 @@ module.exports = {
         const bearerStringWithToken = "Bearer " + bearerToken.access_token
         const config = {
             headers: {
-                apiKey: envVariables.fixEstftApiKey,
+                apiKey: envVariables.estftApiPREVKey,
                 Authorization: bearerStringWithToken
             }
         }
