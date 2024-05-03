@@ -77,7 +77,7 @@ client.connect().then(() => {
     const userPricingCollection = db.collection("user_pricing")
 
     const FFGroundTax = 19.31;
-    const FFAerialTax = 11.18
+    const FFAerialTax = 10.82
 
     router.post('/DHL', async (req, res) => {
         try {
@@ -177,6 +177,7 @@ client.connect().then(() => {
         }
     })
     router.post('/estafeta', async (req, res) => {
+        console.log("Estafeta case")
         try {
             const requiredFields = ['alto', 'ancho', 'esPaquete', 'largo', 'peso', 'originZip', 'destinyZip', 'userId'];
             const missingField = requiredFields.find(field => !req.body[field]);
@@ -221,9 +222,10 @@ client.connect().then(() => {
                     ]
                 }
             }
-
             const dataResponseESTAFETARaw = await controllerEstafetaServices.getRates(dataRequest);
+            
             let dataResponseESTAFETA = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta;
+            console.log("{3}")
         
             if (dataResponseESTAFETA.Error !== '000') {
                 throw new Error(dataResponseESTAFETA.MensajeError);
