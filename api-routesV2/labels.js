@@ -54,6 +54,7 @@ router.post('/DHL', async (req, res) => {
         const db = client.db(dbName);
         const usersCollection = db.collection("users");
         const user = await usersCollection.findOne({ _id: new ObjectId(userId) })
+        console.log("user", user)
         const customerReference = user?.string_reference || "Quikpack"
 
         let newArrWithPackagess = packages

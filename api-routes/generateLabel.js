@@ -26,17 +26,27 @@ router.post('/', async (req, res) => {
     try {
         userId = req.body.userId
         let customerReference = ""
-        if (userId === "5MAv%2mUE%3KutBXno5E") {
-            customerReference = "Guitar Gear"
-        } else if (userId === "enc0UiLq0oNXm1GTFHB8") {
+        // if (userId === "5MAv%2mUE%3KutBXno5E") {
+        //     customerReference = "Guitar Gear"
+        // } else 
+           // }else if (userId === "ui0125skguelosfjg980") {
+        //   customerReference = "REDBOX"
+        // }
+        // } else {
+        //   customerReference = "Quickpak"
+        // }
+
+        if (userId === "enc0UiLq0oNXm1GTFHB8") {
           // customerReference = "SRS Express"
           customerReference = "2C-V00"
-       
-        }else if (userId === "ui0125skguelosfjg980") {
-          customerReference = "REDBOX"
-        } else {
+        }else if (userId === "qp-test-data") {
+          // customerReference = "SRS Express"
           customerReference = "Quickpak"
+        } if(customerReference === ""){
+          res.status(501).json({ status: "error", messages: ("userID non existant: " + userId) })
         }
+
+
         let newArrWithPackagess = req.body.packages
         newArrWithPackagess.forEach(cadaPaquete => {
             cadaPaquete['CustomerReferences'] = customerReference
@@ -131,7 +141,7 @@ router.post('/', async (req, res) => {
         // const registerOnBd = await controllerFirebaseBD.addGeneratedLabelDHl(userId, { request: req.body, response: response.data })
         res.status(200).json(objResponse)
     } catch (e) {
-        res.status(200).json({ status: "error", messages: ("error: " + e) })
+        res.status(501).json({ status: "error", messages: ("error: " + e) })
     }
 })
 
@@ -179,12 +189,13 @@ router.post('/estafetaDeprecated', async (req, res) => {
         dataOrigen = req.body.dataOrigen
         dataDestino = req.body.dataDestino
         descripcionPaquete = req.body.descripcionPaquete
-        if (userId === "5MAv%2mUE%3KutBXno5E") {
-            customerReference = "Guitar Gear"
-        } else if (userId === "enc0UiLq0oNXm1GTFHB8") {
-            customerReference = "SRS Express"
-        } else {
-          customerReference = "QP Tests"
+      if (userId === "enc0UiLq0oNXm1GTFHB8") {
+          // customerReference = "SRS Express"
+          customerReference = "2C-V00"
+        }else if (userId === "qp-test-data") {
+          customerReference = "Quickpak"
+        } if(customerReference === ""){
+          res.status(501).json({ status: "error", messages: ("userID non existant: " + userId) })
         }
         let additionalInfo = ""
         let content = ""
