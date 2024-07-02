@@ -77,7 +77,7 @@ client.connect().then(() => {
     const userPricingCollection = db.collection("user_pricing")
 
     const FFGroundTax = 19.51;
-    const FFAerialTax = 10.82
+    const FFAerialTax = 10.46
 
     router.post('/DHL', async (req, res) => {
         try {

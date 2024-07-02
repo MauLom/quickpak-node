@@ -74,7 +74,7 @@ router.post('/', async (req, res) => {
         const validServicesDHL = ["G", "N"]; // Your valid services for DHL
 
         const zonedhl = getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
-        const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl, Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 10.82), Number.parseFloat(ffTaxes?.FFTaxes?.land || 19.31), validServicesDHL);
+        const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl, Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 10.46), Number.parseFloat(ffTaxes?.FFTaxes?.land || 19.51), validServicesDHL);
 
         return res.status(200).json({ status: "OK", messages: "ok", zone: zonedhl, data: pricesBasedOnClientData });
     } catch (error) {
@@ -145,7 +145,7 @@ router.post('/estafeta', async (req, res) => {
             clientDataSheet,
             weightForCalcs,
             zone,
-            Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 0.1082),
+            Number.parseFloat(ffTaxes?.FFTaxes?.aerial || 0.1046),
             Number.parseFloat(ffTaxes?.FFTaxes?.land || 0.1951),
             costoReexpedicion !== "No" ? costoReexpedicion : "0",
             calculoSeguro
