@@ -1,3 +1,5 @@
+const { x64 } = require("crypto-js")
+
 module.exports = {
     getPricesBasedOnSheet: (rateData, sheet, weight, zone, FFAerialTax, FFGroundTax, validServicesDHL) => {
         var arrWithNewPrices = []
@@ -11,6 +13,9 @@ module.exports = {
                         let precioPorKG = 0
                         if (weight > 30) {
                             let excedentePeso = weight - 30;
+                            if (arrParseadaBD[31] == undefined) {
+                                return arrWithNewPrices
+                            }
                             let auxStr = arrParseadaBD[31][zone].value
                             if (typeof auxStr === "string" && auxStr.includes(",")) {
                                 auxStr = auxStr.replace(",", ".")
