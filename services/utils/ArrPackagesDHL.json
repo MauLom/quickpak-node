@@ -974,6 +974,44 @@
       "G": [
         [
           {
+            "value": "KG",
+            "readOnly": true
+          },
+          {
+            "value": "Zona 1",
+            "readOnly": true
+          },
+          {
+            "value": "Zona B",
+            "readOnly": true
+          },
+          {
+            "value": "Zona C",
+            "readOnly": true
+          },
+          {
+            "value": "Zona D",
+            "readOnly": true
+          },
+          {
+            "value": "Zona E",
+            "readOnly": true
+          },
+          {
+            "value": "Zona F",
+            "readOnly": true
+          },
+          {
+            "value": "Zona G",
+            "readOnly": true
+          },
+          {
+            "value": "Zona H",
+            "readOnly": true
+          }
+        ],
+        [
+          {
             "value": "1",
             "readOnly": true
           },
