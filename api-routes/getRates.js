@@ -10,8 +10,8 @@ const getzoneDHL = require('../services/zoneRequest')
 const controllerZonesEstafeta = require('../models/controllerSigsAndZonesEstafeta');
 const controllerMongoBD = require('../models/controllerMongoBD');
 
-const cargoCombustibleAereo = 11.18;
-const cargoCombustibleTerrestre = 20.31;
+const cargoCombustibleAereo = 10.82;
+const cargoCombustibleTerrestre = 20.00;
 
 router.post('/', async (req, res) => {
     const {
