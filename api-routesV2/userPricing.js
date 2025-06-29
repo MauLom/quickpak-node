@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const bodyParser = require("body-parser");
 const { MongoClient } = require("mongodb");
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 router.use(bodyParser.json());
 
@@ -21,7 +23,22 @@ client.connect().then(() => {
 
   // Define a route for creating or updating user pricing using the POST method
   router.post("", async (req, res) => {
-    const { user_id, provider_id, service, pricing } = req.body;
+    let { user_id, provider_id, service, pricing, basic_auth_pass } = req.body;
+
+    // Generar user_id único si no se recibe
+    if (!user_id) {
+      user_id = crypto.randomUUID();
+    }
+
+    // Generar contraseña aleatoria si no se recibe basic_auth_pass
+    let plainPassword = basic_auth_pass;
+    if (!plainPassword) {
+      plainPassword = crypto.randomBytes(8).toString('hex'); // 16 caracteres hex
+    }
+
+    // Encriptar la contraseña para basic_auth_pass
+    const saltRounds = 10;
+    const encryptedBasicAuthPass = await bcrypt.hash(plainPassword, saltRounds);
 
     // Find an existing document or insert a new one
     const query = {
@@ -36,6 +53,7 @@ client.connect().then(() => {
         provider_id,
         service,
         pricing,
+        basic_auth_pass: encryptedBasicAuthPass
       },
     };
 
@@ -45,7 +63,7 @@ client.connect().then(() => {
 
     try {
       const result = await userPricingCollection.updateOne(query, update, options);
-      res.status(200).json({ message: "User pricing created or updated" });
+      res.status(200).json({ message: "User pricing created or updated", user_id, plainPassword });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
     }

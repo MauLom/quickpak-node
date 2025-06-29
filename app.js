@@ -21,6 +21,19 @@ const labelsV2 = require("./api-routesV2/labels")
 const zips = require('./api-routesV2/zipCodes')
 const rates = require('./api-routesV2/rates')
 const directionsNotebooks = require('./api-routesV2/directionsNotebooks')
+
+// V3 imports
+const getRatesV3 = require('./api-routesV3/getRates');
+// const generateLabelV3 = require('./api-routesV3/generateLabel');
+// const getZoneDHLV3 = require('./api-routesV3/getZoneDHL');
+// const labelsDataV3 = require('./api-routesV3/labelsData');
+// const usersDataV3 = require('./api-routesV3/usersData');
+// const getUsersV3 = require('./api-routesV3/getUsers');
+// const generalValuesV3 = require('./api-routesV3/changeGeneralValues');
+// const trackingLabelsV3 = require('./api-routesV3/trackingLabel');
+// const usersV3 = require('./api-routesV3/users');
+// const editServicesV3 = require('./api-routesV3/editServices');
+
 app.use(express.json())
 
 app.use(cors())
@@ -55,6 +68,18 @@ app.use('/api/rates', rates)
 app.use('/api/login', loginLogic)
 app.use('/api/generateLabel', labelsV2)
 app.use('/api/directionsNotebook', directionsNotebooks)
+
+// Rutas V3
+app.use('/api/v3/getRates', getRatesV3);
+// app.use('/api/v3/generateLabel', generateLabelV3);
+// app.use('/api/v3/getZoneDHL', getZoneDHLV3);
+// app.use('/api/v3/labelsData', labelsDataV3);
+// app.use('/api/v3/usersData', usersDataV3);
+// app.use('/api/v3/getUsers', getUsersV3);
+// app.use('/api/v3/generalValues', generalValuesV3);
+// app.use('/api/v3/trackingLabel', trackingLabelsV3);
+// app.use('/api/v3/users', usersV3);
+// app.use('/api/v3/editservices', editServicesV3);
 
 
 module.exports = app;
