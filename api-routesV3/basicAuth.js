@@ -14,14 +14,15 @@ module.exports = async function basicAuth(req, res, next) {
     // Decodificar credenciales
     const base64Credentials = auth.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    const [user_id, pass] = credentials.split(':');
+    const [username, pass] = credentials.split(':');
 
     try {
         const client = new MongoClient(url, { useUnifiedTopology: true });
         await client.connect();
         const db = client.db(dbName);
         const userPricingCollection = db.collection('user_pricing');
-        const user = await userPricingCollection.findOne({ user_id });
+        // Buscar por basic_auth_username (case-insensitive)
+        const user = await userPricingCollection.findOne({ basic_auth_username: { $regex: `^${username}$`, $options: 'i' } });
         await client.close();
         if (user && user.basic_auth_pass) {
             const valid = await bcrypt.compare(pass, user.basic_auth_pass);
