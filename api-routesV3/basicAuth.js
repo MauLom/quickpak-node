@@ -25,6 +25,10 @@ module.exports = async function basicAuth(req, res, next) {
         const user = await userPricingCollection.findOne({ basic_auth_username: { $regex: `^${username}$`, $options: 'i' } });
         await client.close();
         if (user && user.basic_auth_pass) {
+            if (user.is_active === false) {
+                res.set('WWW-Authenticate', 'Basic realm="Servicios V3"');
+                return res.status(403).send('Usuario inactivo');
+            }
             const valid = await bcrypt.compare(pass, user.basic_auth_pass);
             if (valid) return next();
         }
