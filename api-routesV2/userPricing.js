@@ -23,7 +23,7 @@ client.connect().then(() => {
 
   // Crear o actualizar usuario (POST)
   router.post("", async (req, res) => {
-    let { user_id, name, basic_auth_username, basic_auth_pass } = req.body;
+    let { user_id, name, basic_auth_username, basic_auth_pass, pricing_matrix_dhl, pricing_matrix_estafeta } = req.body;
     if (!user_id) {
       user_id = crypto.randomUUID();
     }
@@ -47,6 +47,8 @@ client.connect().then(() => {
         basic_auth_pass: encryptedBasicAuthPass,
         is_active: true,
         created_at: new Date(),
+        ...(pricing_matrix_dhl ? { pricing_matrix_dhl } : {}),
+        ...(pricing_matrix_estafeta ? { pricing_matrix_estafeta } : {})
       },
     };
     const options = { upsert: true };
@@ -86,7 +88,7 @@ client.connect().then(() => {
 
   // Actualizar campos de usuario (PUT)
   router.put("", async (req, res) => {
-    const { user_id, name, basic_auth_username, basic_auth_pass } = req.body;
+    const { user_id, name, basic_auth_username, basic_auth_pass, is_active } = req.body;
     if (!user_id) return res.status(400).json({ message: "user_id is required" });
     let updateFields = {};
     if (name) updateFields.name = name;
@@ -95,6 +97,7 @@ client.connect().then(() => {
       const saltRounds = 10;
       updateFields.basic_auth_pass = await bcrypt.hash(basic_auth_pass, saltRounds);
     }
+    if (typeof is_active === 'boolean') updateFields.is_active = is_active;
     if (Object.keys(updateFields).length === 0) {
       return res.status(400).json({ message: "No fields to update" });
     }
@@ -105,6 +108,44 @@ client.connect().then(() => {
       );
       if (result.modifiedCount === 1) {
         res.status(200).json({ message: "User pricing updated" });
+      } else {
+        res.status(404).json({ message: "User pricing not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Actualizar matriz DHL (PUT /dhl)
+  router.put("/dhl", async (req, res) => {
+    const { user_id, pricing_matrix_dhl } = req.body;
+    if (!user_id || !pricing_matrix_dhl) return res.status(400).json({ message: "user_id y pricing_matrix_dhl son requeridos" });
+    try {
+      const result = await userPricingCollection.updateOne(
+        { user_id },
+        { $set: { pricing_matrix_dhl } }
+      );
+      if (result.matchedCount === 1) {
+        res.status(200).json({ message: "Matriz DHL actualizada" });
+      } else {
+        res.status(404).json({ message: "User pricing not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Actualizar matriz Estafeta (PUT /estafeta)
+  router.put("/estafeta", async (req, res) => {
+    const { user_id, pricing_matrix_estafeta } = req.body;
+    if (!user_id || !pricing_matrix_estafeta) return res.status(400).json({ message: "user_id y pricing_matrix_estafeta son requeridos" });
+    try {
+      const result = await userPricingCollection.updateOne(
+        { user_id },
+        { $set: { pricing_matrix_estafeta } }
+      );
+      if (result.matchedCount === 1) {
+        res.status(200).json({ message: "Matriz Estafeta actualizada" });
       } else {
         res.status(404).json({ message: "User pricing not found" });
       }
