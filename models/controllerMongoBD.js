@@ -181,7 +181,7 @@ module.exports = {
             const pricingMatrixDHL = user.pricing_matrix_dhl;
             
             //HOTFIX: los precios se calculaban mal por no incluir los encabezados de zona
-            const zoneHeaders = ['', 'Zona 1', 'Zona 2', 'Zona 3', 'Zona 4', 'Zona 5', 'Zona 6', 'Zona 7', 'Zona 8'];
+            const zoneHeaders = ['', 'Zona A', 'Zona B', 'Zona C', 'Zona D', 'Zona E', 'Zona F', 'Zona G', 'Zona H'];
             // Agregar encabezados de zona como primera fila
             pricingMatrixDHL.N = [zoneHeaders.map(header => ({ value: header, readOnly: true })), ...pricingMatrixDHL.N];
             pricingMatrixDHL.G = [zoneHeaders.map(header => ({ value: header, readOnly: true })), ...pricingMatrixDHL.G];

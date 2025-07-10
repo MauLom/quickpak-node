@@ -9,6 +9,7 @@ const getzoneDHL = require('../services/zoneRequest')
 const controllerDHLServices = require('../services/connectionDHLServices')
 const controllerEstafetaServices = require('../services/connectionESTAFETAServices')
 const controllerWeight = require('../services/calculateWeight')
+const controllerMongoBD = require('../models/controllerMongoBD');
 
 const url = process.env.MONGO_URI;
 const dbName = process.env.DB_NAME;
@@ -23,7 +24,7 @@ function numberToZoneString(number, provider) {
     let zoneString = ""
     switch (provider) {
         case "DHL":
-            zoneString = ` Zona ${zoneLetter}`
+            zoneString = `Zona ${zoneLetter}`
             break;
         case "Estafeta":
             zoneString = `Zona ${number}`
@@ -67,6 +68,18 @@ function getPrice(priceList, kg, zone) {
     }
 }
 
+function mapPricingMatrixToPricing(pricingMatrix) {
+    const zoneHeaders = pricingMatrix[0].map(cell => cell.value).slice(1); // Extract zone headers from the first row
+    return pricingMatrix.slice(1).map(row => {
+        const kg = row[0].value === "Kg Adicional" ? "extra" : parseInt(row[0].value, 10);
+        const prices = row.slice(1).map((cell, index) => ({
+            zone: zoneHeaders[index],
+            price: parseFloat(cell.value)
+        }));
+        return { kg, prices };
+    });
+}
+
 process.on('exit', () => {
     client.close();
 });
@@ -98,33 +111,36 @@ client.connect().then(() => {
             if (dataResponseDHL?.error) { throw new Error(dataResponseDHL?.message) }
 
             const user = await usersCollection.findOne({ _id: new ObjectId(req.body.userId) });
-            const filtered = getServicesByProvider(user.provider_access, "DHL");
-            if (typeof filtered === "string") {
-                throw new Error(`Error in fetching user services: ${filtered}`);
-            }
+            // const filtered = getServicesByProvider(user.provider_access, "DHL");
+            // if (typeof filtered === "string") {
+            //     throw new Error(`Error in fetching user services: ${filtered}`);
+            // }
 
-            function filterDataByServices(data, services) {
-                return data.filter(item => services.includes(item['@type']));
-            }
+            // function filterDataByServices(data, services) {
+            //     return data.filter(item => services.includes(item['@type']));
+            // }
 
-            const filteredData = filterDataByServices(dataResponseDHL, filtered);
-
+            // const filteredData = filterDataByServices(dataResponseDHL, filtered);
+            const pricing_matrix_dhl = await controllerMongoBD.getDHLMatrixByUsername(user.userName);
+            
+            const filteredData = dataResponseDHL.filter(item => (item['@type'] == 'N') ? pricing_matrix_dhl?.N : false ||  (item['@type'] == 'G') ? pricing_matrix_dhl?.G : false);
             const weightForCalcs = controllerWeight.getWeightForCalcs(req.body.packages);
 
-            let matrix = [];
-            for (let i = 0; i < filtered.length; i++) {
-                const query = { provider_id: "DHL", service: filtered[i], user_id: req.body.userId };
-                const result = await userPricingCollection.findOne(query);
-                if (!result) {
-                    throw new Error(`Error in fetching user matrix for service ${filtered[i]}`);
-                }
-                matrix.push({ service: filtered[i], message: "OK", data: result.pricing });
-            }
+            // let matrix = [];
+            // for (let i = 0; i < filtered.length; i++) {
+            //     const query = { provider_id: "DHL", service: filtered[i], user_id: req.body.userId };
+            //     const result = await userPricingCollection.findOne(query);
+            //     if (!result) {
+            //         throw new Error(`Error in fetching user matrix for service ${filtered[i]}`);
+            //     }
+            //     matrix.push({ service: filtered[i], message: "OK", data: result.pricing });
+            // }
 
             const finalArr = [];
             filteredData.forEach(cadaServicio => {
-                const dataMatrix = matrix.find(entry => entry.service === cadaServicio["@type"]);
-                const requestPrice = getPrice(dataMatrix.data, weightForCalcs, zonedhl);
+                const dataMatrix = mapPricingMatrixToPricing(pricing_matrix_dhl[`${cadaServicio['@type']}`]);
+                
+                const requestPrice = getPrice(dataMatrix, weightForCalcs, zonedhl);
 
                 if (cadaServicio['Charges']['Charge'].length > 2) {
                     let valoresParaSumarFF = 0;
@@ -245,30 +261,32 @@ client.connect().then(() => {
             const weightForCalcs = await controllerWeight.getWeightForCalcsFromEstafetaPackage({ 'alto': alto, 'ancho': ancho, 'largo': largo, 'peso': peso })
             const calculoSeguro = parseFloat(Number(seguroMontoDeclarado) * 0.0125).toFixed(2)
 
-            let matrix = [];
-            for (let i = 0; i < userServices.length; i++) {
-                const query = { provider_id: "Estafeta", service: userServices[i], user_id: userId };
-                const result = await userPricingCollection.findOne(query);
-                if (!result) {
-                    throw new Error(`Error in fetching user matrix for service ${userServices[i]}`);
-                }
-                matrix.push({ service: userServices[i], message: "OK", data: result.pricing });
-            }
-            const finalData = []
+            // let matrix = [];
+            // for (let i = 0; i < userServices.length; i++) {
+            //     const query = { provider_id: "Estafeta", service: userServices[i], user_id: userId };
+            //     const result = await userPricingCollection.findOne(query);
+            //     if (!result) {
+            //         throw new Error(`Error in fetching user matrix for service ${userServices[i]}`);
+            //     }
+            //     matrix.push({ service: userServices[i], message: "OK", data: result.pricing });
+            // }
+            const pricing_matrix_estafeta = await controllerMongoBD.getEstafetaMatrixByUsername(user.userName);
 
+
+            const finalData = []
             rawFilteredServices.forEach(cadaServicio => {
-                const dataMatrix = matrix.find(entry => 
-                    entry.service.toLowerCase() === cadaServicio["DescripcionServicio"].toLowerCase()
-                  );
-                const requestPrice = getPrice(dataMatrix.data, weightForCalcs, zone);
-                let seguro = Number(calculoSeguro)
-                const costoReex = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.CostoReexpedicion
-                let reexpedicionSinIva = 0
+                const dataMatrix = mapPricingMatrixToPricing(pricing_matrix_estafeta[`${cadaServicio.DescripcionServicio}`]);
+
+                const requestPrice = getPrice(dataMatrix, weightForCalcs, zone);
+
+                let seguro = Number(calculoSeguro);
+                const costoReex = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.CostoReexpedicion;
+                let reexpedicionSinIva = 0;
                 if (costoReex !== "No") {
-                    reexpedicionSinIva = Number(costoReex) / 1.16
+                    reexpedicionSinIva = Number(costoReex) / 1.16;
                 }
-                let subtotal = Number(requestPrice) + reexpedicionSinIva + Number(seguro)
-                let IVA = parseFloat(Number(subtotal) * 0.16).toFixed(2)
+                let subtotal = Number(requestPrice) + reexpedicionSinIva + Number(seguro);
+                let IVA = parseFloat(Number(subtotal) * 0.16).toFixed(2);
                 const newObj = {
                     "DiasEntrega": dataResponseESTAFETARaw?.FrecuenciaCotizadorResponse?.FrecuenciaCotizadorResult?.Respuesta?.DiasEntrega,
                     "TarifaBase": Number(requestPrice),
