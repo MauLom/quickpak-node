@@ -69,5 +69,10 @@ app.use('/api/v3/label', generateLabelV3);
 
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Ruta para servir el JSON de Swagger
+app.get("/swagger.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(swaggerSpec);
+});
 
 module.exports = app;
