@@ -221,4 +221,23 @@ module.exports = {
             await client.close();
         }
     },
+    getUserPricing: async (username) => {
+        const client = new MongoClient(uri);
+        try {
+            const database = client.db(bdName);
+            const userPricing = database.collection('user_pricing');
+            const user = await userPricing.findOne({ basic_auth_username: { $regex: `^${username}$`, $options: 'i' } });
+
+            if (!user) {
+                return null;
+            }
+
+            return user;
+        } catch (error) {
+            console.error("getUserFromPricing error:", error);
+            return null;
+        } finally {
+            await client.close();
+        }
+    }
 }

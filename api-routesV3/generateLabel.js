@@ -29,14 +29,6 @@ router.use(basicAuth);
  *           schema:
  *             type: object
  *             required:
- *               - userId
- *               - packages
- *               - oStreets
- *               - oCity
- *               - oZip
- *               - dStreets
- *               - dCity
- *               - dZip
  *               - service
  *               - date
  *               - desc
@@ -44,88 +36,116 @@ router.use(basicAuth);
  *               - oCompany
  *               - oPhone
  *               - oEmail
+ *               - oStreets
+ *               - oCity
+ *               - oZip
  *               - dName
  *               - dCompany
  *               - dPhone
  *               - dEmail
+ *               - dStreets
+ *               - dCity
+ *               - dZip
+ *               - packages
  *             properties:
- *               userId:
+ *               service:
  *                 type: string
- *                 description: "Identificador del usuario autenticado. Ejemplo: 'usuario123'"
- *                 example: "usuario123"
+ *                 description: "Tipo de servicio DHL. Ejemplo: 'G'"
+ *                 example: "G"
+ *               date:
+ *                 type: string
+ *                 description: "Fecha de envío. Ejemplo: '2025-07-10'"
+ *                 example: "2025-07-10"
+ *               desc:
+ *                 type: string
+ *                 description: "Descripción del contenido. Ejemplo: 'descripcion'"
+ *                 example: "descripcion"
+ *               oName:
+ *                 type: string
+ *                 description: "Nombre del remitente. Ejemplo: 'Carlos'"
+ *                 example: "Carlos"
+ *               oCompany:
+ *                 type: string
+ *                 description: "Empresa del remitente. Ejemplo: 'Comp de Carlos'"
+ *                 example: "Comp de Carlos"
+ *               oPhone:
+ *                 type: string
+ *                 description: "Teléfono del remitente. Ejemplo: '8180808080'"
+ *                 example: "8180808080"
+ *               oEmail:
+ *                 type: string
+ *                 description: "Correo del remitente. Ejemplo: 'correo@origen.com'"
+ *                 example: "correo@origen.com"
+ *               oStreets:
+ *                 type: string
+ *                 description: "Calle(s) de origen. Ejemplo: 'Calles origen'"
+ *                 example: "Calles origen"
+ *               oCity:
+ *                 type: string
+ *                 description: "Ciudad de origen. Ejemplo: 'Monterrey'"
+ *                 example: "Monterrey"
+ *               oZip:
+ *                 type: string
+ *                 description: "Código postal de origen. Ejemplo: '64000'"
+ *                 example: "64000"
+ *               dName:
+ *                 type: string
+ *                 description: "Nombre del destinatario. Ejemplo: 'Daniel'"
+ *                 example: "Daniel"
+ *               dCompany:
+ *                 type: string
+ *                 description: "Empresa del destinatario. Ejemplo: 'Comp de Daniel'"
+ *                 example: "Comp de Daniel"
+ *               dPhone:
+ *                 type: string
+ *                 description: "Teléfono del destinatario. Ejemplo: '8281818181'"
+ *                 example: "8281818181"
+ *               dEmail:
+ *                 type: string
+ *                 description: "Correo del destinatario. Ejemplo: 'correo@destino.com'"
+ *                 example: "correo@destino.com"
+ *               dStreets:
+ *                 type: string
+ *                 description: "Calle(s) de destino. Ejemplo: 'Calles destino'"
+ *                 example: "Calles destino"
+ *               dCity:
+ *                 type: string
+ *                 description: "Ciudad de destino. Ejemplo: 'Ciudad de Mexico'"
+ *                 example: "Ciudad de Mexico"
+ *               dZip:
+ *                 type: string
+ *                 description: "Código postal de destino. Ejemplo: '11500'"
+ *                 example: "11500"
  *               packages:
  *                 type: array
  *                 description: "Arreglo de paquetes a enviar."
  *                 items:
  *                   type: object
- *               oStreets:
- *                 type: string
- *                 description: "Calle(s) de origen. Ejemplo: 'Av. Reforma 123'"
- *                 example: "Av. Reforma 123"
- *               oCity:
- *                 type: string
- *                 description: "Ciudad de origen. Ejemplo: 'CDMX'"
- *                 example: "CDMX"
- *               oZip:
- *                 type: string
- *                 description: "Código postal de origen. Ejemplo: '01000'"
- *                 example: "01000"
- *               dStreets:
- *                 type: string
- *                 description: "Calle(s) de destino. Ejemplo: 'Calle 5'"
- *                 example: "Calle 5"
- *               dCity:
- *                 type: string
- *                 description: "Ciudad de destino. Ejemplo: 'Guadalajara'"
- *                 example: "Guadalajara"
- *               dZip:
- *                 type: string
- *                 description: "Código postal de destino. Ejemplo: '44100'"
- *                 example: "44100"
- *               service:
- *                 type: string
- *                 description: "Tipo de servicio DHL. Ejemplo: 'EXPRESS'"
- *                 example: "EXPRESS"
- *               date:
- *                 type: string
- *                 description: "Fecha de envío. Ejemplo: '2025-07-07'"
- *                 example: "2025-07-07"
- *               desc:
- *                 type: string
- *                 description: "Descripción del contenido. Ejemplo: 'Documentos'"
- *                 example: "Documentos"
- *               oName:
- *                 type: string
- *                 description: "Nombre del remitente. Ejemplo: 'Juan Pérez'"
- *                 example: "Juan Pérez"
- *               oCompany:
- *                 type: string
- *                 description: "Empresa del remitente. Ejemplo: 'MiEmpresa'"
- *                 example: "MiEmpresa"
- *               oPhone:
- *                 type: string
- *                 description: "Teléfono del remitente. Ejemplo: '5551234567'"
- *                 example: "5551234567"
- *               oEmail:
- *                 type: string
- *                 description: "Correo del remitente. Ejemplo: 'juan@correo.com'"
- *                 example: "juan@correo.com"
- *               dName:
- *                 type: string
- *                 description: "Nombre del destinatario. Ejemplo: 'Ana López'"
- *                 example: "Ana López"
- *               dCompany:
- *                 type: string
- *                 description: "Empresa del destinatario. Ejemplo: 'OtraEmpresa'"
- *                 example: "OtraEmpresa"
- *               dPhone:
- *                 type: string
- *                 description: "Teléfono del destinatario. Ejemplo: '3331234567'"
- *                 example: "3331234567"
- *               dEmail:
- *                 type: string
- *                 description: "Correo del destinatario. Ejemplo: 'ana@correo.com'"
- *                 example: "ana@correo.com"
+ *                   properties:
+ *                     @number:
+ *                       type: number
+ *                       description: "Número del paquete. Ejemplo: 1"
+ *                       example: 1
+ *                     Weight:
+ *                       type: string
+ *                       description: "Peso del paquete en kilogramos. Ejemplo: '2'"
+ *                       example: "2"
+ *                     Dimensions:
+ *                       type: object
+ *                       description: "Dimensiones del paquete."
+ *                       properties:
+ *                         Length:
+ *                           type: string
+ *                           description: "Largo del paquete en centímetros. Ejemplo: '10'"
+ *                           example: "10"
+ *                         Width:
+ *                           type: string
+ *                           description: "Ancho del paquete en centímetros. Ejemplo: '10'"
+ *                           example: "10"
+ *                         Height:
+ *                           type: string
+ *                           description: "Alto del paquete en centímetros. Ejemplo: '10'"
+ *                           example: "10"
  *     responses:
  *       200:
  *         description: Guía generada exitosamente
@@ -147,26 +167,29 @@ router.use(basicAuth);
  */
 // Endpoint para generar guía DHL
 router.post('/dhl', async (req, res) => {
-    var userId = ""
     let hora = "T17:30:00 GMT-06:00"
     if (req.body.hora !== undefined) {
         hora = req.body.hora
     }
     try {
-        userId = req.body.userId
-        let customerReference = ""
-        if (userId === "enc0UiLq0oNXm1GTFHB8") {
-            customerReference = "2C-V00"
-        } else if (userId === "qp-test-data") {
-            customerReference = "Quickpak"
+
+        const username = getAuthenticatedUsername(req);
+        const user = await controllerMongoData.getUserPricing(username);
+        if (!user) {
+            return res.status(401).json({ status: "error", messages: "No se pudo determinar el usuario autenticado" });
         }
-        if (customerReference === "") {
-            return res.status(501).json({ status: "error", messages: ("userID non existant: " + userId) })
+
+        const customerReference = user.reference_dhl || "";
+
+        if(customerReference === ""){
+            res.status(501).json({ status: "error", messages: ("La referencia no se configuro para el usuario") })
         }
+
         let newArrWithPackagess = req.body.packages
         newArrWithPackagess.forEach(cadaPaquete => {
             cadaPaquete['CustomerReferences'] = customerReference
         })
+
         let baseDataAddressOrigin = {
             "StreetLines": req.body.oStreets,
             "City": req.body.oCity,
@@ -179,6 +202,7 @@ router.post('/dhl', async (req, res) => {
         if (req.body?.oStreets3 !== undefined) {
             baseDataAddressOrigin["StreetLines3"] = req.body.oStreets3
         }
+
         let baseDataAddressDestiny = {
             "StreetLines": req.body.dStreets,
             "City": req.body.dCity,
@@ -191,6 +215,7 @@ router.post('/dhl', async (req, res) => {
         if (req.body?.dStreets3 !== undefined) {
             baseDataAddressDestiny["StreetLines3"] = req.body.dStreets3
         }
+
         const dataObj = {
             "ShipmentRequest": {
                 "RequestedShipment": {
@@ -241,20 +266,22 @@ router.post('/dhl', async (req, res) => {
                 }
             }
         }
-        if (newArrWithPackagess[0].InsuredValue) {
+
+        if(newArrWithPackagess[0].InsuredValue){
             dataObj.ShipmentRequest.RequestedShipment.ShipmentInfo['SpecialServices'] = [
                 { "Service": { "ServiceType": "II", "ServiceValue": newArrWithPackagess[0].InsuredValue, "CurrencyCode": "MXN" } }
             ]
         }
         const response = await controllerDHLServices.generateLabel(dataObj)
         const objResponse = { status: "ok", messages: "ok", data: response.data }
-        await controllerMongoData.saveGeneratedLabelDataOnBD({ userId: userId, request: req.body, response: response.data, type: "DHL", createdAt: Date.now() })
+        _ = await controllerMongoData.saveGeneratedLabelDataOnBD({ userId: user._id, request: req.body, response: response.data, type: "DHL", createdAt: Date.now() })
+
+        // const registerOnBd = await controllerFirebaseBD.addGeneratedLabelDHl(userId, { request: req.body, response: response.data })
         res.status(200).json(objResponse)
     } catch (e) {
         res.status(501).json({ status: "error", messages: ("error: " + e) })
     }
 });
-
 
 /**
  * @swagger
@@ -280,7 +307,6 @@ router.post('/dhl', async (req, res) => {
  *               - largo
  *               - peso
  *               - descripcionPaquete
- *               - userId
  *               - dataOrigen
  *               - dataDestino
  *               - tipoServicioId
@@ -309,10 +335,6 @@ router.post('/dhl', async (req, res) => {
  *                 type: string
  *                 description: "Descripción del contenido del paquete. Ejemplo: 'Ropa y accesorios'"
  *                 example: "Ropa y accesorios"
- *               userId:
- *                 type: string
- *                 description: "Identificador del usuario autenticado. Ejemplo: 'usuario123'"
- *                 example: "usuario123"
  *               dataOrigen:
  *                 type: object
  *                 description: "Datos completos del remitente (ver ejemplo de estructura)."
@@ -392,7 +414,7 @@ router.post('/dhl', async (req, res) => {
 router.post('/estafeta', async (req, res) => {
     const requiredProperties = [
         "alto", "ancho", "esPaquete", "largo", "peso",
-        "descripcionPaquete", "userId", "dataOrigen",
+        "descripcionPaquete", "dataOrigen",
         "dataDestino", "tipoServicioId"
     ];
 
@@ -406,17 +428,18 @@ router.post('/estafeta', async (req, res) => {
     }
 
     const {
-        alto, ancho, esPaquete, largo, peso, userId,
+        alto, ancho, esPaquete, largo, peso,
         dataOrigen, dataDestino, tipoServicioId,
         descripcionPaquete, seguro, additionalInfo, content
     } = req.body;
 
-    await client.connect();
-    const db = client.db(dbName);
-    const usersCollection = db.collection("users");
-    const user = await usersCollection.findOne({ _id: new ObjectId(userId) })
+    const username = getAuthenticatedUsername(req);
+    const user = await controllerMongoData.getUserPricing(username);
+    if (!user) {
+        return res.status(401).json({ status: "error", messages: "No se pudo determinar el usuario autenticado" });
+    }
 
-    const customerReference =  user?.string_reference || "Quikpack"
+    const customerReference =  user?.reference_estafeta || "Quikpack"
 
     let seguroMontoDeclarado = 0;
     let llevaSeguro = false;
@@ -430,8 +453,8 @@ router.post('/estafeta', async (req, res) => {
     const dateValidThru = dateNow.addDays(14);
     const dateValidThruFormatted = [
         dateValidThru.getFullYear(),
-        padTo2Digits(dateValidThru.getMonth() + 1),
-        padTo2Digits(dateValidThru.getDate()),
+        (dateValidThru.getMonth() + 1).toString().padStart(2, '0'),
+        (dateValidThru.getDate()).toString().padStart(2, '0'),
     ].join('');
 
     const dataObj = {
@@ -632,14 +655,14 @@ router.post('/estafeta', async (req, res) => {
     const response = await controllerEstafetaServices.generateLabel(dataObj);
     if (response?.data !== null) {
         const objToBd = {
-            client: userId,
+            client: user._id,
             createdAt: Date.now(),
             parcel: "Estafeta",
             labelId: response?.labelPetitionResult?.elements[0]?.waybill || "error",
             pieces: [{ weight: peso, dimensions: `${alto}x${ancho}x${largo}` }],
         }
         const registerOnBd = await controllerMongoData.saveGeneratedLabelDataOnBDV2({
-            userId,
+            userId: user._id,
             request: req.body,
             response,
             data: objToBd,

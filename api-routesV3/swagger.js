@@ -8,10 +8,16 @@ const options = {
         version: "1.0.0",
         description: "Documentación de la API de Quickpak",
     },
+    servers: [
+        {
+            url: process.env.HOST_NAME || "http://localhost:3000",
+            description: "Servidor de Quickpak"
+        }
+    ],
     components: {
     securitySchemes: {
         basicAuth: {
-            type: "http",
+            type: "https",
             scheme: "basic",
         },
     },
