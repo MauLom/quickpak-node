@@ -4,9 +4,7 @@ const {basicAuth} = require('./basicAuth');
 const { getAuthenticatedUsername } = require('./basicAuth');
 const controllerDHLServices = require('../services/connectionDHLServices');
 const controllerEstafetaServices = require('../services/connectionESTAFETAServices');
-const controllerZone = require('../services/calculateZone');
 const controllerWeight = require('../services/calculateWeight');
-const controllerUserData = require('../models/controllerFirebaseBD');
 const controllerPrices = require('../services/calculatePricesWithClientData');
 const getzoneDHL = require('../services/zoneRequest');
 const controllerZonesEstafeta = require('../models/controllerSigsAndZonesEstafeta');
@@ -349,7 +347,6 @@ router.post('/estafeta', async (req, res) => {
 
         const weightForCalcs = await controllerWeight.getWeightForCalcsFromEstafetaPackage({ alto, ancho, largo, peso });
         // const ffTaxes = await controllerMongoBD.findGeneralValues();
-        const ffTaxes = null
         const costoReexpedicion = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.CostoReexpedicion;
         const DiasEntrega = dataResponseESTAFETARaw.FrecuenciaCotizadorResponse.FrecuenciaCotizadorResult.Respuesta.DiasEntrega;
         const txtManejoEspecial = "Envíos identificados como frágil, empaque irregular, envíos no transportables por bandas pueden generar un costo extra de  $63.67";
