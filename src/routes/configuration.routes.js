@@ -3,7 +3,7 @@ const { createFFTax, getFFTax, deleteFFTax, updateFFTax } = require('../controll
 
 const router = express.Router();
 
-router.get('/ffTax/:key', getFFTax);
+router.get('/ffTax', getFFTax);
 router.post('/ffTax', createFFTax);
 router.put('/ffTax', updateFFTax);
 router.delete('/ffTax', deleteFFTax)
