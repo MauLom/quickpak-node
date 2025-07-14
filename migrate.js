@@ -1,12 +1,14 @@
 // migrateUsersWithPricingMatrix.js
+require('dotenv').config();
 const { MongoClient } = require('mongodb');
 const bcrypt = require("bcrypt");
 const fs = require('fs');
 
+// Como se va a perder la estructura de user_pricing primero hacermos backup de los arcvhivos en un json para poder  leerlo despues
 const pricingData = JSON.parse(fs.readFileSync('C:\\Users\\marco\\AppData\\Local\\MongoDBCompass\\app-1.46.5\\Quickpak.user_pricing.json', 'utf8'));
 
-const sourceDbUrl = 'mongodb+srv://maulom:rnreqcL5@logisticclcuster.8cqosl5.mongodb.net/Quickpak';
-const targetDbUrl = 'mongodb+srv://maulom:rnreqcL5@logisticclcuster.8cqosl5.mongodb.net/Quickpak-TST-2'; // CAMBIAR POR LA BD DE DESTINO
+const sourceDbUrl = process.env.MONGO_URI;
+const targetDbUrl = process.env.MONGO_URI
 
 async function migrate() {
   const sourceClient = new MongoClient(sourceDbUrl, { useUnifiedTopology: true });
