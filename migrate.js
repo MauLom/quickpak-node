@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const fs = require('fs');
 
 // Como se va a perder la estructura de user_pricing primero hacermos backup de los arcvhivos en un json para poder  leerlo despues
-const pricingData = JSON.parse(fs.readFileSync('C:\\Users\\marco\\AppData\\Local\\MongoDBCompass\\app-1.46.5\\Quickpak.user_pricing.json', 'utf8'));
+const pricingData = JSON.parse(fs.readFileSync("C:\\Users\\RENTA INTERCOM\\Downloads\\Quickpak.user_pricing.json", 'utf8'));
 
 const sourceDbUrl = process.env.MONGO_URI;
 const targetDbUrl = process.env.MONGO_URI
@@ -19,7 +19,7 @@ async function migrate() {
     await targetClient.connect();
 
     const sourceDb = sourceClient.db('Quickpak');
-    const targetDb = targetClient.db('Quickpak-TST-2');
+    const targetDb = targetClient.db('Quickpak-TST');
 
     const users = await sourceDb.collection('users').find({}).toArray();
 
@@ -62,7 +62,7 @@ async function migrate() {
       }
 
         const saltRounds = 10;
-        const encryptedBasicAuthPass = await bcrypt.hash('api-pass-123', saltRounds);
+        const encryptedBasicAuthPass = await bcrypt.hash(`${user.userName}2025`, saltRounds);
       
       const newUserPricing = {
         user_id: user._id.toString(),
@@ -75,7 +75,7 @@ async function migrate() {
         is_active: true,
         name: user.userName,
         basic_auth_username: user.userName,
-        basic_auth_password: encryptedBasicAuthPass, // Puedes cambiar esto por lógica de hash si lo necesitas
+        basic_auth_password: encryptedBasicAuthPass,
         pricing_matrix_dhl,
         pricing_matrix_estafeta,
         created_at: new Date()
