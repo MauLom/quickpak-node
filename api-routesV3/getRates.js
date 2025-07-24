@@ -9,9 +9,13 @@ const controllerPrices = require('../services/calculatePricesWithClientData');
 const getzoneDHL = require('../services/zoneRequest');
 const controllerZonesEstafeta = require('../models/controllerSigsAndZonesEstafeta');
 const controllerMongoBD = require('../models/controllerMongoBD');
+const FFTaxes = require('../src/models/FFTaxes');
 
-const cargoCombustibleAereo = 10.10;
-const cargoCombustibleTerrestre = 20.31;
+const getTasasByPaqueteria = async (paqueteria) => {
+  return await FFTaxes.findOne({ paqueteria: new RegExp(`^${paqueteria}$`, 'i') }); // insensitive match
+};
+
+
 
 router.use(basicAuth);
 
@@ -191,6 +195,10 @@ router.post('/dhl', async (req, res) => {
         const validServicesDHL = ["G", "N"];
 
         const zonedhl = getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
+
+        const cargoCombustibleAereo = await getTasasByPaqueteria("dhl")?.tasaAerea;
+        const cargoCombustibleTerrestre = await getTasasByPaqueteria("dhl")?.tasaTerrestre;
+
         const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl, Number.parseFloat(cargoCombustibleAereo), Number.parseFloat(cargoCombustibleTerrestre), validServicesDHL);
 
         return res.status(200).json({ status: "OK", messages: "ok", zone: zonedhl, data: pricesBasedOnClientData });
@@ -354,6 +362,10 @@ router.post('/estafeta', async (req, res) => {
 
         const dataResponseEstafeta = await controllerEstafetaServices.getValidServices(dataResponseESTAFETA.TipoServicio.TipoServicio, zone);
         const calculoSeguro = parseFloat(Number(seguro || 0) * 0.0125).toFixed(2);
+
+        const cargoCombustibleAereo = await getTasasByPaqueteria("estafeta")?.tasaAerea || getTasasByPaqueteria("dhl")?.tasaAerea;
+        const cargoCombustibleTerrestre = await getTasasByPaqueteria("estafeta")?.tasaTerrestre || getTasasByPaqueteria("dhl")?.tasaTerrestre;
+
         const dataBasedOnUserSheet = await controllerPrices.getPricesEstafetaBasedOnSheet(
             dataResponseEstafeta,
             clientDataSheet,

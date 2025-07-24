@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const FFTaxesSchema  = new mongoose.Schema({
   paqueteria: {
     type: String,
-     enum: ['estafeta', 'DHL'],
+     enum: ['estafeta', 'DHL', 'dhl'],
   },
   tasaAerea: {
     type: Number,

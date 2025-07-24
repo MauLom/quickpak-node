@@ -5,7 +5,7 @@ exports.createFFTax = async (req, res) => {
     try {
         const {  paqueteria, tasaAerea, tasaTerrestre, } = req.body;
         const newTax = new FFTaxes({  paqueteria, tasaAerea, tasaTerrestre });
-        const savedTax = await newTax.save(); // Aquí faltaba el .save()
+        const savedTax = await newTax.save(); 
 
         res.status(201).json(savedTax);
     } catch (error) {
@@ -42,8 +42,10 @@ exports.updateFFTax = async (req, res) => {
             tasaTerrestre,
         } = req.body;
 
+        const ffTaxAsObjectId = ffTaxID.startsWith('ObjectId(') ? ffTaxID.slice(9, -1) : ffTaxID;
+
         const updatedItem = await FFTaxes.findByIdAndUpdate(
-            ffTaxID,
+            ffTaxAsObjectId,
             {
                 ...(paqueteria !== undefined && { paqueteria }),
                 ...(tasaAerea !== undefined && { tasaAerea }),
