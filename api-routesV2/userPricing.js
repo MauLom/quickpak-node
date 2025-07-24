@@ -23,7 +23,7 @@ client.connect().then(() => {
 
   // Crear o actualizar usuario (POST)
   router.post("", async (req, res) => {
-    let { user_id, name, basic_auth_username, basic_auth_pass, pricing_matrix_dhl, pricing_matrix_estafeta, reference_dhl, reference_estafeta } = req.body;
+    let { user_id, name,email, role, userName, password, basic_auth_username, basic_auth_pass, pricing_matrix_dhl, pricing_matrix_estafeta, reference_dhl, reference_estafeta } = req.body;
     if (!user_id) {
       user_id = crypto.randomUUID();
     }
@@ -43,6 +43,10 @@ client.connect().then(() => {
       $set: {
         user_id,
         name,
+        email,
+        role,
+        userName,
+        password,
         basic_auth_username,
         basic_auth_pass: encryptedBasicAuthPass,
         is_active: true,
@@ -78,11 +82,39 @@ client.connect().then(() => {
     }
   });
 
-  // Consultar todos los usuarios (GET /all)
+  // Consultar todos los usuarios con paginación y búsqueda (GET /all)
   router.get("/all", async (req, res) => {
     try {
-      const allClients = await userPricingCollection.find({}).toArray();
-      res.status(200).json(allClients);
+      let { page = 1, limit = 10, search = "" } = req.query;
+      page = parseInt(page);
+      limit = parseInt(limit);
+
+      const filter = search
+        ? {
+            $or: [
+              { name: { $regex: search, $options: "i" } },
+              { basic_auth_username: { $regex: search, $options: "i" } },
+            ],
+          }
+        : {};
+
+      const totalClients = await userPricingCollection.countDocuments(filter);
+      const totalPages = Math.ceil(totalClients / limit);
+
+      const clients = await userPricingCollection
+        .find(filter)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .sort({ name: 1})
+        .collation({ locale: 'es', strength: 1 })
+        .toArray();
+
+      res.status(200).json({
+        clients,
+        totalPages,
+        totalClients,
+        currentPage: page,
+      });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
     }
@@ -90,12 +122,16 @@ client.connect().then(() => {
 
   // Actualizar campos de usuario (PUT)
   router.put("", async (req, res) => {
-    const { user_id, name, basic_auth_username, basic_auth_pass, is_active, reference_dhl, reference_estafeta } = req.body;
+    const { user_id, name,email, role, userName, password, basic_auth_username, basic_auth_pass, is_active, reference_dhl, reference_estafeta } = req.body;
     if (!user_id) return res.status(400).json({ message: "user_id is required" });
     let updateFields = {};
     if (name) updateFields.name = name;
+    if (email) updateFields.email = email;
+    if (role) updateFields.role = role;
+    if (userName) updateFields.userName = userName;
+    if (password) updateFields.password = password;
     if (basic_auth_username) updateFields.basic_auth_username = basic_auth_username;
-    if (basic_auth_pass) {
+    if (basic_auth_pass && basic_auth_pass.trim() !== "") {
       const saltRounds = 10;
       updateFields.basic_auth_pass = await bcrypt.hash(basic_auth_pass, saltRounds);
     }
@@ -110,7 +146,7 @@ client.connect().then(() => {
         { user_id },
         { $set: updateFields }
       );
-      if (result.modifiedCount === 1) {
+      if (result.matchedCount === 1) {
         res.status(200).json({ message: "User pricing updated" });
       } else {
         res.status(404).json({ message: "User pricing not found" });
