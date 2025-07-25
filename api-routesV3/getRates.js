@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {basicAuth} = require('./basicAuth');
+const { basicAuth } = require('./basicAuth');
 const { getAuthenticatedUsername } = require('./basicAuth');
 const controllerDHLServices = require('../services/connectionDHLServices');
 const controllerEstafetaServices = require('../services/connectionESTAFETAServices');
@@ -12,7 +12,7 @@ const controllerMongoBD = require('../models/controllerMongoBD');
 const FFTaxes = require('../src/models/FFTaxes');
 
 const getTasasByPaqueteria = async (paqueteria) => {
-  return await FFTaxes.findOne({ paqueteria: new RegExp(`^${paqueteria}$`, 'i') }); // insensitive match
+    return await FFTaxes.findOne({ paqueteria: new RegExp(`^${paqueteria}$`, 'i') }); // insensitive match
 };
 
 
@@ -196,8 +196,11 @@ router.post('/dhl', async (req, res) => {
 
         const zonedhl = getzoneDHL.getZoneRequest(cpOrigin, cpDestino);
 
-        const cargoCombustibleAereo = await getTasasByPaqueteria("dhl")?.tasaAerea;
-        const cargoCombustibleTerrestre = await getTasasByPaqueteria("dhl")?.tasaTerrestre;
+        const tasas = await getTasasByPaqueteria("dhl");
+
+
+        const cargoCombustibleAereo = tasas?.tasaAerea;
+        const cargoCombustibleTerrestre = tasas?.tasaTerrestre;
 
         const pricesBasedOnClientData = controllerPrices.getPricesBasedOnSheet(dataResponseDHL, clientDataSheet, weightForCalcs, zonedhl, Number.parseFloat(cargoCombustibleAereo), Number.parseFloat(cargoCombustibleTerrestre), validServicesDHL);
 
@@ -371,8 +374,8 @@ router.post('/estafeta', async (req, res) => {
             clientDataSheet,
             weightForCalcs,
             zone,
-            Number.parseFloat(cargoCombustibleAereo/100),
-            Number.parseFloat(cargoCombustibleTerrestre/100),
+            Number.parseFloat(cargoCombustibleAereo / 100),
+            Number.parseFloat(cargoCombustibleTerrestre / 100),
             costoReexpedicion !== "No" ? costoReexpedicion : "0",
             calculoSeguro
         );

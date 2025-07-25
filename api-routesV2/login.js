@@ -13,7 +13,7 @@ router.post("", async (req, res) => {
     try {
         const client = new MongoClient(url, { useUnifiedTopology: true });
         const db = client.db(dbName);
-        const collection = db.collection('users');
+        const collection = db.collection('user_pricing');
 
         const user = await collection.findOne({ userName: username });
         if (!user) {
@@ -28,7 +28,7 @@ router.post("", async (req, res) => {
         }
 
         client.close();
-        return res.status(200).json({ message: "Logged in", id: user._id, role: user.role });
+        return res.status(200).json({ message: "Logged in", id: user._id, role: user.role, basic_auth_pass: user.password, basic_auth_username: user.basic_auth_username });
     } catch (err) {
         return res.status(500).json({ message: err });
     }
