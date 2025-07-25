@@ -32,6 +32,10 @@ module.exports = {
                         if (precioPorKG.toString().includes(",")) {
                             precioPorKG = precioPorKG.replace(",", ".")
                         }
+                        console.log("Servicio", cadaServicio['@type'])
+                        console.log("precioPorKG", precioPorKG)
+                        console.log("zona", zone)
+                        console.log("peso", weight)
                         cadaServicio['Charges']['Charge'][0].ChargeAmount = Number(precioPorKG)
                         if (cadaServicio['Charges']['Charge'].length > 2) {
                             let valoresParaSumarFF = 0
@@ -57,12 +61,19 @@ module.exports = {
                                     }
                                     if (cadaCargo.ChargeCode == "FF") {
                                         valoresParaSumarFF += Number(parseFloat(Number(precioPorKG)).toFixed(2))
+                                        console.log("valoresParaSumarFF", valoresParaSumarFF)
                                         let multiplicadorCombus = cadaServicio['@type'] === "G" ? FFGroundTax : FFAerialTax
+                                        console.log("multiplicadorCombus", multiplicadorCombus)
                                         let porcPreDepured = Number.parseFloat(multiplicadorCombus).toFixed(2)
+                                        console.log("porcPreDepured", porcPreDepured)
+
                                         let porcDepured = porcPreDepured / 100
                                         let resultMulti = valoresParaSumarFF * porcDepured
 
                                         cadaCargo.ChargeAmount = Number(parseFloat(resultMulti).toFixed(2))
+                                        console.log("cadaCargo.ChargeAmount", cadaCargo.ChargeAmount)
+                                        console.log("--------------------")
+
                                     }
                                 })
                         } else {

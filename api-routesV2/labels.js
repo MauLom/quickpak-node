@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
     const { origin, userId } = req.query;
     try {
         await client.connect();
-        const db = client.db("Quickpak_logistic");
+        const db = client.db(dbName);
         const labelsCollections = db.collection(origin);
         const data = await labelsCollections.find().toArray();
         res.status(200).json(data);

@@ -16,9 +16,9 @@ const MongoClient = require("mongodb").MongoClient;
 // const uri = "mongodb+srv://root:Hyklv5gh@cluster0.dl9kn2d.mongodb.net/test";
 // const bdName = "QuickpakMain"
 // const collectionName = "clients"
-const bdName = "Quickpak_logistic"
+const bdName = process.env.DB_NAME;
 const collectionName = "users"
-const uri = "mongodb+srv://maulom:rnreqcL5@logisticclcuster.8cqosl5.mongodb.net/"
+const uri = process.env.MONGO_URI;
 
 module.exports = {
     findClients: async () => {
@@ -165,6 +165,79 @@ module.exports = {
             console.error("Error:", error)
         } finally {
             await client.close()
+        }
+    },
+    getDHLMatrixByUsername: async (username) => {
+        const client = new MongoClient(uri);
+        try {
+            const database = client.db(bdName);
+            const userPricing = database.collection('user_pricing');
+            const user = await userPricing.findOne({ basic_auth_username: { $regex: `^${username}$`, $options: 'i' } });
+
+            if (!user || !user.pricing_matrix_dhl) {
+                return null;
+            }
+
+            const pricingMatrixDHL = user.pricing_matrix_dhl;
+            
+            //HOTFIX: los precios se calculaban mal por no incluir los encabezados de zona
+            const zoneHeaders = ['', 'Zona A', 'Zona B', 'Zona C', 'Zona D', 'Zona E', 'Zona F', 'Zona G', 'Zona H'];
+            // Agregar encabezados de zona como primera fila
+            pricingMatrixDHL.N = [zoneHeaders.map(header => ({ value: header, readOnly: true })), ...pricingMatrixDHL.N];
+            pricingMatrixDHL.G = [zoneHeaders.map(header => ({ value: header, readOnly: true })), ...pricingMatrixDHL.G];
+
+            return pricingMatrixDHL;
+        } catch (error) {
+            console.error("getDHLMatrixByUsername error:", error);
+            return null;
+        } finally {
+            await client.close();
+        }
+    },
+    getEstafetaMatrixByUsername: async (username) => {
+        const client = new MongoClient(uri);
+        try {
+            const database = client.db(bdName);
+            const userPricing = database.collection('user_pricing');
+            const user = await userPricing.findOne({ basic_auth_username: { $regex: `^${username}$`, $options: 'i' } });
+
+            if (!user || !user.pricing_matrix_estafeta) {
+                return null;
+            }
+
+            const pricingMatrixEstafeta = user.pricing_matrix_estafeta;
+            
+            //HOTFIX: los precios se calculaban mal por no incluir los encabezados de zona
+            const zoneHeaders = ['', 'Zona 1', 'Zona 2', 'Zona 3', 'Zona 4', 'Zona 5', 'Zona 6', 'Zona 7', 'Zona 8'];
+            // Agregar encabezados de zona como primera fila
+            pricingMatrixEstafeta['Terrestre']= [zoneHeaders.map(header => ({ value: header, readOnly: true })), ...pricingMatrixEstafeta['Terrestre']];
+            pricingMatrixEstafeta['Dia Sig.'] = [zoneHeaders.map(header => ({ value: header, readOnly: true })), ...pricingMatrixEstafeta['Dia Sig.']];
+
+            return pricingMatrixEstafeta;
+        } catch (error) {
+            console.error("getEstafetaMatrixByUsername error:", error);
+            return null;
+        } finally {
+            await client.close();
+        }
+    },
+    getUserPricing: async (username) => {
+        const client = new MongoClient(uri);
+        try {
+            const database = client.db(bdName);
+            const userPricing = database.collection('user_pricing');
+            const user = await userPricing.findOne({ basic_auth_username: { $regex: `^${username}$`, $options: 'i' } });
+
+            if (!user) {
+                return null;
+            }
+
+            return user;
+        } catch (error) {
+            console.error("getUserFromPricing error:", error);
+            return null;
+        } finally {
+            await client.close();
         }
     }
 }

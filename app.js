@@ -21,6 +21,19 @@ const labelsV2 = require("./api-routesV2/labels")
 const zips = require('./api-routesV2/zipCodes')
 const rates = require('./api-routesV2/rates')
 const directionsNotebooks = require('./api-routesV2/directionsNotebooks')
+
+// V3 imports
+const getRatesV3 = require('./api-routesV3/getRates');
+const generateLabelV3 = require('./api-routesV3/generateLabel');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./api-routesV3/swagger');
+const routes = require('./src/routes/app.index');
+
+
+const connectDB = require('./src/config/db'); 
+///mongoose connection db
+connectDB();
+
 app.use(express.json())
 
 app.use(cors())
@@ -56,5 +69,19 @@ app.use('/api/login', loginLogic)
 app.use('/api/generateLabel', labelsV2)
 app.use('/api/directionsNotebook', directionsNotebooks)
 
+// Rutas V3
+app.use('/api/v3/rate', getRatesV3);
+app.use('/api/v3/label', generateLabelV3);
+
+//Rutas nueva arquitectura
+app.use('/api/v3/', routes)
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Ruta para servir el JSON de Swagger
+app.get("/swagger.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(swaggerSpec);
+});
 
 module.exports = app;

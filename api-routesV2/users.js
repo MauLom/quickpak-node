@@ -20,7 +20,7 @@ process.on('exit', () => {
 
 client.connect().then(() => {
   const db = client.db(dbName);
-  const usersCollection = db.collection("users");
+  const usersCollection = db.collection("user_pricing");
 
   // Define a route for creating a new user using the POST method
   router.post("", async (req, res) => {

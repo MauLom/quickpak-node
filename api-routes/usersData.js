@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://maulom:rnreqcL5@logisticclcuster.8cqosl5.mongodb.net/";
+const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 })
 
 router.get("/", async (req, res) => {
