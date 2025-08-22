@@ -1,6 +1,6 @@
-const { x64 } = require("crypto-js")
 
 module.exports = {
+
     getPricesBasedOnSheet: (rateData, sheet, weight, zone, FFAerialTax, FFGroundTax, validServicesDHL) => {
         var arrWithNewPrices = []
         if (rateData.length < 1) { arrWithNewPrices }
