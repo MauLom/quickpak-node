@@ -63,6 +63,8 @@ module.exports = {
                                         valoresParaSumarFF += Number(parseFloat(Number(precioPorKG)).toFixed(2))
                                         console.log("valoresParaSumarFF", valoresParaSumarFF)
                                         let multiplicadorCombus = cadaServicio['@type'] === "G" ? FFGroundTax : FFAerialTax
+                                        console.log("G Tax :", FFGroundTax);
+                                        console.log("A Tax :", FFAerialTax);
                                         console.log("multiplicadorCombus", multiplicadorCombus)
                                         let porcPreDepured = Number.parseFloat(multiplicadorCombus).toFixed(2)
                                         console.log("porcPreDepured", porcPreDepured)
