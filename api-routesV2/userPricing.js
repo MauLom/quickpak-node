@@ -23,7 +23,7 @@ client.connect().then(() => {
 
   // Crear o actualizar usuario (POST)
   router.post("", async (req, res) => {
-    let { user_id, name,email, role, userName, password, basic_auth_username, basic_auth_pass, pricing_matrix_dhl, pricing_matrix_estafeta, reference_dhl, reference_estafeta } = req.body;
+    let { user_id, name,email, role, userName, password, basic_auth_username, basic_auth_pass, pricing_matrix_dhl, pricing_matrix_estafeta, reference_dhl, reference_estafeta, hasDynamicCalculation, provider_auth_settings } = req.body;
     if (!user_id) {
       user_id = crypto.randomUUID();
     }
@@ -53,6 +53,8 @@ client.connect().then(() => {
         created_at: new Date(),
         reference_dhl: reference_dhl || "",
         reference_estafeta: reference_estafeta || "",
+        hasDynamicCalculation: hasDynamicCalculation || false,
+        provider_auth_settings: provider_auth_settings || [],
         ...(pricing_matrix_dhl ? { pricing_matrix_dhl } : {}),
         ...(pricing_matrix_estafeta ? { pricing_matrix_estafeta } : {})
       },
@@ -122,7 +124,7 @@ client.connect().then(() => {
 
   // Actualizar campos de usuario (PUT)
   router.put("", async (req, res) => {
-    const { user_id, name,email, role, userName, password, basic_auth_username, basic_auth_pass, is_active, reference_dhl, reference_estafeta } = req.body;
+    const { user_id, name,email, role, userName, password, basic_auth_username, basic_auth_pass, is_active, reference_dhl, reference_estafeta, hasDynamicCalculation, provider_auth_settings } = req.body;
     if (!user_id) return res.status(400).json({ message: "user_id is required" });
     let updateFields = {};
     if (name) updateFields.name = name;
@@ -138,6 +140,8 @@ client.connect().then(() => {
     if (typeof is_active === 'boolean') updateFields.is_active = is_active;
     if (reference_dhl) updateFields.reference_dhl = reference_dhl;
     if (reference_estafeta) updateFields.reference_estafeta = reference_estafeta;
+    if (typeof hasDynamicCalculation === 'boolean') updateFields.hasDynamicCalculation = hasDynamicCalculation;
+    if (provider_auth_settings !== undefined) updateFields.provider_auth_settings = provider_auth_settings;
     if (Object.keys(updateFields).length === 0) {
       return res.status(400).json({ message: "No fields to update" });
     }
