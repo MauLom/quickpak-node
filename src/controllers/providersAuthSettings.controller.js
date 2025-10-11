@@ -3,10 +3,11 @@ const ProvidersAuthSettings = require('../models/ProvidersAuthSettings');
 // Crear nuevo provider auth setting
 const createProviderAuthSetting = async (req, res) => {
   try {
-    const { provider, user, password, scopes, isActive } = req.body;
+    const { provider, account, user, password, scopes, isActive } = req.body;
     
     const newSetting = new ProvidersAuthSettings({
       provider,
+      account,
       user,
       password,
       scopes,
@@ -77,11 +78,11 @@ const getProviderAuthSettingById = async (req, res) => {
 // Actualizar provider auth setting
 const updateProviderAuthSetting = async (req, res) => {
   try {
-    const { provider, user, password, scopes, isActive } = req.body;
+    const { provider, account, user, password, scopes, isActive } = req.body;
     
     const setting = await ProvidersAuthSettings.findByIdAndUpdate(
       req.params.id,
-      { provider, user, password, scopes, isActive },
+      { provider, account, user, password, scopes, isActive },
       { new: true, runValidators: true }
     );
 

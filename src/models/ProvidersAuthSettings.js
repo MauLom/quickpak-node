@@ -6,6 +6,11 @@ const ProvidersAuthSettingsSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  account: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   user: {
     type: String,
     required: true,

@@ -226,7 +226,64 @@ module.exports = {
         try {
             const database = client.db(bdName);
             const userPricing = database.collection('user_pricing');
+            const providersAuthSettings = database.collection('providers_auth_settings');
+            
             const user = await userPricing.findOne({ basic_auth_username: { $regex: `^${username}$`, $options: 'i' } });
+
+            if (!user) {
+                return null;
+            }
+
+            // Si el usuario tiene provider_auth_settings, hacer el join con la colección de providers_auth_settings
+            if (user.provider_auth_settings && Array.isArray(user.provider_auth_settings) && user.provider_auth_settings.length > 0) {
+                // Convertir los IDs a ObjectId si son strings
+                const { ObjectId } = require('mongodb');
+                const providerIds = user.provider_auth_settings.map(id => {
+                    try {
+                        return typeof id === 'string' ? new ObjectId(id) : id;
+                    } catch (error) {
+                        console.warn('Invalid ObjectId:', id);
+                        return null;
+                    }
+                }).filter(id => id !== null);
+
+                if (providerIds.length > 0) {
+                    // Buscar los provider_auth_settings completos
+                    const fullProviderSettings = await providersAuthSettings.find({
+                        _id: { $in: providerIds },
+                        isActive: true // Solo proveedores activos
+                    }).toArray();
+
+                    // Reemplazar los IDs con los objetos completos
+                    user.provider_auth_settings = fullProviderSettings;
+                }
+            }
+
+            return user;
+        } catch (error) {
+            console.error("getUserFromPricing error:", error);
+            return null;
+        } finally {
+            await client.close();
+        }
+    },
+    getUserDataByUsername: async (username) => {
+        const client = new MongoClient(uri);
+        try {
+            const database = client.db(bdName);
+            const userPricing = database.collection('user_pricing');
+            const user = await userPricing.findOne(
+                { basic_auth_username: { $regex: `^${username}$`, $options: 'i' } },
+                { 
+                    projection: { 
+                        hasDynamicCalculation: 1, 
+                        provider_auth_settings: 1, 
+                        basic_auth_username: 1,
+                        userName: 1,
+                        _id: 1
+                    } 
+                }
+            );
 
             if (!user) {
                 return null;
@@ -234,7 +291,7 @@ module.exports = {
 
             return user;
         } catch (error) {
-            console.error("getUserFromPricing error:", error);
+            console.error("getUserDataByUsername error:", error);
             return null;
         } finally {
             await client.close();
