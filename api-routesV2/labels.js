@@ -50,11 +50,58 @@ router.post('/DHL', async (req, res) => {
             service, date, desc
         } = req.body;
 
+        if (!userId) {
+            return res.status(400).json({
+                status: "error",
+                messages: "userId es requerido para generar la etiqueta"
+            });
+        }
+
+        // Buscar el usuario directamente en user_pricing
         await client.connect();
         const db = client.db(dbName);
-        const usersCollection = db.collection("users");
-        const user = await usersCollection.findOne({ _id: new ObjectId(userId) })
-        console.log("user", user)
+        const userPricingCollection = db.collection("user_pricing");
+        const providersAuthSettings = db.collection('providers_auth_settings');
+        
+        const user = await userPricingCollection.findOne({ _id: new ObjectId(userId) });
+        console.log("user from user_pricing collection", user);
+        
+        if (!user) {
+            throw new Error('Usuario no encontrado en user_pricing');
+        }
+
+        // Si el usuario tiene provider_auth_settings, hacer el join con la colección de providers_auth_settings
+        if (user.provider_auth_settings && Array.isArray(user.provider_auth_settings) && user.provider_auth_settings.length > 0) {
+            // Convertir los IDs a ObjectId si son strings
+            const providerIds = user.provider_auth_settings.map(id => {
+                try {
+                    return typeof id === 'string' ? new ObjectId(id) : id;
+                } catch (error) {
+                    console.warn('Invalid ObjectId:', id);
+                    return null;
+                }
+            }).filter(id => id !== null);
+
+            if (providerIds.length > 0) {
+                // Buscar los provider_auth_settings completos
+                const fullProviderSettings = await providersAuthSettings.find({
+                    _id: { $in: providerIds },
+                    isActive: true // Solo proveedores activos
+                }).toArray();
+
+                console.log('🔗 [V2] Providers auth settings cargados:', fullProviderSettings.map(p => ({
+                    id: p._id,
+                    provider: p.provider,
+                    account: p.account,
+                    user: p.user,
+                    isActive: p.isActive
+                })));
+
+                // Reemplazar los IDs con los objetos completos
+                user.provider_auth_settings = fullProviderSettings;
+            }
+        }
+        
         const customerReference = user?.string_reference || "Quikpack"
 
         let newArrWithPackagess = packages
@@ -130,7 +177,117 @@ router.post('/DHL', async (req, res) => {
             ];
         }
 
-        const response = await controllerDHLServices.generateLabel(dataObj);
+        let response;
+
+        // Implementar la obtención de múltiples rates para encontrar el proveedor más barato
+        try {
+            if (user.hasDynamicCalculation && user.provider_auth_settings && user.provider_auth_settings.length > 0) {
+                
+                // Filtrar solo proveedores DHL
+                const dhlProviders = user.provider_auth_settings.filter(provider => {
+                    const normalizedProvider = provider.provider?.toUpperCase();
+                    return normalizedProvider === 'DHL';
+                });
+                
+                if (dhlProviders.length === 0) {
+                    throw new Error('No se encontraron proveedores DHL configurados');
+                }
+                
+                // Crear estructura de paquetes para cotización con el formato correcto
+                let rateArrPackages = packages.map((pkg, index) => ({
+                    "@number": index + 1,
+                    "Weight": {
+                        "Value": parseFloat(pkg.Weight || pkg.weight || 0)
+                    },
+                    "Dimensions": {
+                        "Length": pkg.Dimensions?.Length || pkg.dimensions?.length || pkg.Length || "10",
+                        "Width": pkg.Dimensions?.Width || pkg.dimensions?.width || pkg.Width || "10", 
+                        "Height": pkg.Dimensions?.Height || pkg.dimensions?.height || pkg.Height || "10"
+                    }
+                }));
+                
+                // Crear estructura de datos para cotización usando paquetes normalizados
+                const rateDataForQuote = controllerDHLServices.structureRequestToDHL(
+                    dataObj.ShipmentRequest.RequestedShipment.ShipTimestamp,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Shipper.Address.City,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Shipper.Address.PostalCode,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Shipper.Address.CountryCode,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Recipient.Address.City,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Recipient.Address.PostalCode,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Recipient.Address.CountryCode,
+                    rateArrPackages, // Usando paquetes con estructura correcta
+                    newArrWithPackagess[0].InsuredValue || 0 // Clave normalizada
+                );
+
+                // Obtener múltiples cotizaciones usando solo proveedores DHL
+                const multiRatesResult = await controllerDHLServices.getMultiRatesAndStructure(
+                    dhlProviders.map((m) => m._id),
+                    rateDataForQuote
+                );
+                
+                // Filtrar y ordenar cotizaciones válidas
+                let validQuotes = [];
+                
+                if (multiRatesResult && !multiRatesResult.error && multiRatesResult.results) {
+                    // Filtrar resultados sin errores y buscar el servicio solicitado
+                    multiRatesResult.results
+                        .filter(result => !result.error && result.services) // Solo resultados exitosos
+                        .forEach(result => {
+                            // Buscar servicios que coincidan con el tipo solicitado
+                            result.services
+                                .filter(serviceItem => serviceItem['@type'] === service) // Filtrar por tipo de servicio
+                                .forEach(serviceItem => {
+                                    // Extraer el precio total
+                                    const totalAmount = parseFloat(serviceItem.TotalNet?.Amount || 0);
+                                    
+                                    if (totalAmount > 0) {
+                                        validQuotes.push({
+                                            providerId: result.providerId,
+                                            providerUser: result.auth.username,
+                                            providerPassword: result.auth.password,
+                                            auth: result.auth,
+                                            service: serviceItem,
+                                            totalAmount: totalAmount,
+                                            serviceType: serviceItem['@type']
+                                        });
+                                    }
+                                });
+                        });
+                    
+                    // Ordenar de más barato a más caro
+                    validQuotes.sort((a, b) => a.totalAmount - b.totalAmount);
+                    
+                    console.log('🏷️ [V2] Generando etiqueta DHL con cuenta seleccionada:', {
+                        cuenta: validQuotes[0].auth.account,
+                        usuario: validQuotes[0].providerUser,
+                        precio: validQuotes[0].totalAmount,
+                        servicio: validQuotes[0].serviceType,
+                        proveedor: 'DHL',
+                        endpoint: '/api/generateLabel/DHL'
+                    });
+                    
+                    dataObj.ShipmentRequest.RequestedShipment.ShipmentInfo.Account = validQuotes[0].auth.account;
+
+                    response = await controllerDHLServices.generateLabelWithCredentials(dataObj, validQuotes[0].providerUser, validQuotes[0].providerPassword);
+                } else {
+                    throw new Error('No se obtuvieron cotizaciones válidas');
+                }
+            } else {
+                throw new Error('No hay configuración de cálculo dinámico habilitada');
+            }
+
+        } catch (error) {
+            console.log('⚠️ [V2] Fallback: Generando etiqueta DHL con configuración por defecto debido a error:', error.message);
+            console.log('🏷️ [V2] Generando etiqueta DHL con cuenta por defecto:', {
+                cuenta: dataObj.ShipmentRequest.RequestedShipment.ShipmentInfo.Account,
+                motivo: 'Configuración por defecto (no hay cálculo dinámico)',
+                proveedor: 'DHL',
+                endpoint: '/api/generateLabel/DHL'
+            });
+            response = await controllerDHLServices.generateLabel(dataObj);
+        }
+        console.log('✅ [V2] Etiqueta DHL generada exitosamente para usuario:', userId);
+        
         const objResponse = { status: "ok", messages: "ok", data: response.data };
 
         // const objToBd ={

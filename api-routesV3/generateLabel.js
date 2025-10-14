@@ -464,6 +464,14 @@ router.post('/dhl', async (req, res) => {
                     // Ordenar de más barato a más caro
                     validQuotes.sort((a, b) => a.totalAmount - b.totalAmount);
                     
+                    console.log('🏷️ Generando etiqueta DHL con cuenta seleccionada:', {
+                        cuenta: validQuotes[0].auth.account,
+                        usuario: validQuotes[0].providerUser,
+                        precio: validQuotes[0].totalAmount,
+                        servicio: validQuotes[0].serviceType,
+                        proveedor: 'DHL'
+                    });
+                    
                     dataObj.ShipmentRequest.RequestedShipment.ShipmentInfo.Account = validQuotes[0].auth.account;
 
                     response = await controllerDHLServices.generateLabelWithCredentials(dataObj, validQuotes[0].providerUser, validQuotes[0].providerPassword);
@@ -475,9 +483,17 @@ router.post('/dhl', async (req, res) => {
             }
 
         } catch (error) {
+            console.log('⚠️ Fallback: Generando etiqueta DHL con configuración por defecto debido a error:', error.message);
+            console.log('🏷️ Generando etiqueta DHL con cuenta por defecto:', {
+                cuenta: dataObj.ShipmentRequest.RequestedShipment.ShipmentInfo.Account,
+                motivo: 'Configuración por defecto (no hay cálculo dinámico)',
+                proveedor: 'DHL'
+            });
             response = await controllerDHLServices.generateLabel(dataObj)
         }
 
+        console.log('✅ Etiqueta DHL generada exitosamente para usuario:', user.basic_auth_username);
+        
         const objResponse = { status: "ok", messages: "ok", data: response.data }
         _ = await controllerMongoData.saveGeneratedLabelDataOnBD({ userId: user._id, request: req.body, response: response.data, type: "DHL", createdAt: Date.now() })
 
