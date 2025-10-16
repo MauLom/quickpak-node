@@ -182,7 +182,7 @@ router.post('/estafeta', async (req, res) => {
 
     await client.connect();
     const db = client.db(dbName);
-    const usersCollection = db.collection("users");
+    const usersCollection = db.collection("user_pricing");
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) })
 
     const customerReference =  user?.string_reference || "Quikpack"

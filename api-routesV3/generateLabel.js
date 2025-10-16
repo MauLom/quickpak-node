@@ -119,10 +119,22 @@ router.use(basicAuth);
  *               packages:
  *                 type: array
  *                 description: "Arreglo de paquetes a enviar."
+ *                 example: [
+ *                   {
+ *                     "@number": 1,
+ *                     "Weight": "2",
+ *                     "Dimensions": {
+ *                       "Length": "10",
+ *                       "Width": "10", 
+ *                       "Height": "10"
+ *                     },
+ *                     "InsuredValue": 1000
+ *                   }
+ *                 ]
  *                 items:
  *                   type: object
  *                   properties:
- *                     @number:
+ *                     "@number":
  *                       type: number
  *                       description: "Número del paquete. Ejemplo: 1"
  *                       example: 1
@@ -146,6 +158,44 @@ router.use(basicAuth);
  *                           type: string
  *                           description: "Alto del paquete en centímetros. Ejemplo: '10'"
  *                           example: "10"
+ *                     InsuredValue:
+ *                       type: number
+ *                       description: "Valor asegurado del paquete (opcional). Ejemplo: 1000"
+ *                       example: 1000
+ *           examples:
+ *             ejemplo_completo:
+ *               summary: "Ejemplo completo de generación de guía DHL"
+ *               description: "Ejemplo con todos los campos requeridos para generar una guía DHL"
+ *               value:
+ *                 service: "G"
+ *                 date: "2025-07-10"
+ *                 desc: "Documentos importantes"
+ *                 oName: "Carlos Mendoza"
+ *                 oCompany: "Empresa Origen SA"
+ *                 oPhone: "8180808080"
+ *                 oEmail: "carlos@origen.com"
+ *                 oStreets: "Av. Revolución 1234"
+ *                 oCity: "Monterrey"
+ *                 oZip: "64000"
+ *                 dName: "Daniel Rodriguez"
+ *                 dCompany: "Empresa Destino SA"
+ *                 dPhone: "5581818181"
+ *                 dEmail: "daniel@destino.com"
+ *                 dStreets: "Calle Insurgentes 567"
+ *                 dCity: "Ciudad de México"
+ *                 dZip: "11500"
+ *                 packages: [
+ *                   {
+ *                     "@number": 1,
+ *                     "Weight": "2.5",
+ *                     "Dimensions": {
+ *                       "Length": "30",
+ *                       "Width": "20",
+ *                       "Height": "15"
+ *                     },
+ *                     "InsuredValue": 5000
+ *                   }
+ *                 ]
  *     responses:
  *       200:
  *         description: Guía generada exitosamente
@@ -156,14 +206,84 @@ router.use(basicAuth);
  *               properties:
  *                 status:
  *                   type: string
- *                   example: ok
+ *                   example: "ok"
  *                 messages:
  *                   type: string
- *                   example: ok
+ *                   example: "ok"
  *                 data:
  *                   type: object
+ *                   description: "Datos de la guía generada por DHL"
+ *                   properties:
+ *                     ShipmentResponse:
+ *                       type: object
+ *                       properties:
+ *                         PackagesResult:
+ *                           type: object
+ *                           properties:
+ *                             PackageResult:
+ *                               type: array
+ *                               items:
+ *                                 type: object
+ *                                 properties:
+ *                                   TrackingNumber:
+ *                                     type: string
+ *                                     example: "1234567890"
+ *                                     description: "Número de rastreo de la guía"
+ *                                   PDFLabels:
+ *                                     type: string
+ *                                     example: "JVBERi0xLjQKJeLjz9MKMSAwIG9iago..."
+ *                                     description: "Etiqueta en formato PDF codificada en Base64"
+ *             examples:
+ *               success_response:
+ *                 summary: "Respuesta exitosa"
+ *                 value:
+ *                   status: "ok"
+ *                   messages: "ok"
+ *                   data:
+ *                     ShipmentResponse:
+ *                       PackagesResult:
+ *                         PackageResult:
+ *                           - TrackingNumber: "1234567890"
+ *                             PDFLabels: "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwo..."
+ *       401:
+ *         description: Usuario no autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 messages:
+ *                   type: string
+ *                   example: "No se pudo determinar el usuario autenticado"
  *       500:
- *         description: Error al generar la guía
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 messages:
+ *                   type: string
+ *                   example: "Error interno del servidor"
+ *       501:
+ *         description: Error de configuración o servicio no implementado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 messages:
+ *                   type: string
+ *                   example: "La referencia no se configuro para el usuario"
  */
 // Endpoint para generar guía DHL
 router.post('/dhl', async (req, res) => {
@@ -185,6 +305,7 @@ router.post('/dhl', async (req, res) => {
             res.status(501).json({ status: "error", messages: ("La referencia no se configuro para el usuario") })
         }
 
+        // Normalizar las claves de los paquetes        
         let newArrWithPackagess = req.body.packages
         newArrWithPackagess.forEach(cadaPaquete => {
             cadaPaquete['CustomerReferences'] = customerReference
@@ -272,7 +393,91 @@ router.post('/dhl', async (req, res) => {
                 { "Service": { "ServiceType": "II", "ServiceValue": newArrWithPackagess[0].InsuredValue, "CurrencyCode": "MXN" } }
             ]
         }
-        const response = await controllerDHLServices.generateLabel(dataObj)
+
+        let response;
+
+        // Implementar la obtención de múltiples rates
+        try {
+            if (user.hasDynamicCalculation && user.provider_auth_settings && user.provider_auth_settings.length > 0) {
+              
+                // Crear estructura de paquetes para cotización con el formato correcto
+                let rateArrPackages = req.body.packages.map((pkg, index) => ({
+                    "@number": index + 1,
+                    "Weight": {
+                        "Value": parseFloat(pkg.Weight || pkg.weight || 0)
+                    },
+                    "Dimensions": {
+                        "Length": pkg.Dimensions?.Length || pkg.dimensions?.length || pkg.Length || "10",
+                        "Width": pkg.Dimensions?.Width || pkg.dimensions?.width || pkg.Width || "10", 
+                        "Height": pkg.Dimensions?.Height || pkg.dimensions?.height || pkg.Height || "10"
+                    }
+                }));
+                
+                // Crear estructura de datos para cotización usando paquetes normalizados
+                const rateDataForQuote = controllerDHLServices.structureRequestToDHL(
+                    dataObj.ShipmentRequest.RequestedShipment.ShipTimestamp,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Shipper.Address.City,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Shipper.Address.PostalCode,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Shipper.Address.CountryCode,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Recipient.Address.City,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Recipient.Address.PostalCode,
+                    dataObj.ShipmentRequest.RequestedShipment.Ship.Recipient.Address.CountryCode,
+                    rateArrPackages, // Usando paquetes con estructura correcta
+                    newArrWithPackagess[0].InsuredValue || 0 // Clave normalizada
+                );
+
+                // Obtener múltiples cotizaciones usando solo proveedores DHL
+                const multiRatesResult = await controllerDHLServices.getMultiRatesAndStructure(
+                    user.provider_auth_settings.map((m) => m._id),
+                    rateDataForQuote
+                );
+                
+                // Filtrar y ordenar cotizaciones válidas
+                let validQuotes = [];
+                
+                if (multiRatesResult && !multiRatesResult.error && multiRatesResult.results) {
+                    // Filtrar resultados sin errores y buscar el servicio solicitado
+                    multiRatesResult.results
+                        .filter(result => !result.error && result.services) // Solo resultados exitosos
+                        .forEach(result => {
+                            // Buscar servicios que coincidan con el tipo solicitado
+                            result.services
+                                .filter(service => service['@type'] === req.body.service) // Filtrar por tipo de servicio
+                                .forEach(service => {
+                                    // Extraer el precio total
+                                    const totalAmount = parseFloat(service.TotalNet?.Amount || 0);
+                                    
+                                    if (totalAmount > 0) {
+                                        validQuotes.push({
+                                            providerId: result.providerId,
+                                            providerUser: result.auth.username,
+                                            providerPassword: result.auth.password,
+                                            auth: result.auth,
+                                            service: service,
+                                            totalAmount: totalAmount,
+                                            serviceType: service['@type']
+                                        });
+                                    }
+                                });
+                        });
+                    
+                    // Ordenar de más barato a más caro
+                    validQuotes.sort((a, b) => a.totalAmount - b.totalAmount);
+                    
+                    dataObj.ShipmentRequest.RequestedShipment.ShipmentInfo.Account = validQuotes[0].auth.account;
+
+                    response = await controllerDHLServices.generateLabelWithCredentials(dataObj, validQuotes[0].providerUser, validQuotes[0].providerPassword);
+                } else {
+                    throw new Error('No se obtuvieron cotizaciones válidas');
+                }
+            } else {
+                throw new Error('No se obtuvieron cotizaciones válidas');
+            }
+
+        } catch (error) {
+            response = await controllerDHLServices.generateLabel(dataObj)
+        }
+
         const objResponse = { status: "ok", messages: "ok", data: response.data }
         _ = await controllerMongoData.saveGeneratedLabelDataOnBD({ userId: user._id, request: req.body, response: response.data, type: "DHL", createdAt: Date.now() })
 
@@ -678,5 +883,36 @@ router.post('/estafeta', async (req, res) => {
         data: response
     });
 });
+
+const normalizeKeys = (obj) => {
+    if (!obj || typeof obj !== 'object') return obj; // Manejo de casos no válidos
+    return Object.entries(obj).reduce((acc, [key, value]) => {
+        const sanitizedKey = key.replace(/[^a-zA-Z0-9]/g, '');
+        const normalizedKey = sanitizedKey.charAt(0).toUpperCase() + sanitizedKey.slice(1).toLowerCase();
+        acc[normalizedKey] = normalizeKeys(value); // Recursividad para objetos anidados
+        return acc;
+    }, {});
+};
+
+/**
+ * Filtra los proveedores de autenticación por tipo específico
+ * @param {Array} providers - Array de provider_auth_settings del usuario
+ * @param {string} providerType - Tipo de proveedor a filtrar (ej: 'DHL', 'ESTAFETA', 'UPS')
+ * @returns {Array} Array de IDs de proveedores filtrados por tipo
+ */
+const filterProvidersByType = (providers, providerType) => {
+    if (!providers || !Array.isArray(providers) || !providerType) {
+        return [];
+    }
+    
+    return providers
+        .filter(provider => {
+            // Normalizar comparación (case insensitive)
+            const normalizedProvider = provider.provider?.toUpperCase();
+            const normalizedType = providerType.toUpperCase();
+            return normalizedProvider === normalizedType;
+        })
+        .map(provider => provider._id || provider.id); // Extraer solo los IDs
+};
 
 module.exports = router;
