@@ -351,7 +351,7 @@ router.post('/dhl', async (req, res) => {
                             "RequestWaybillDocument": "Y",
                             "HideAccountInWaybillDocument": "Y"
                         },
-                        "LabelType": "PDF",
+                        "LabelType": process.env.DHL_LABEL_TYPE || "PDF",
                     },
                     "ShipTimestamp": req.body.date + hora,
                     "PaymentInfo": "DDU",

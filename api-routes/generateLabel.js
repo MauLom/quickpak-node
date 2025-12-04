@@ -92,7 +92,7 @@ router.post('/', async (req, res) => {
                             "RequestWaybillDocument": "Y",
                             "HideAccountInWaybillDocument": "Y"
                         },
-                        "LabelType": "PDF",
+                        "LabelType": envVariables.DHLLabelType || "PDF",
                     },
                     "ShipTimestamp": req.body.date + hora,
                     "PaymentInfo": "DDU",
